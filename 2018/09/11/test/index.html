@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="keyword"  content="">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        Safe python execution via Docker and Django Web UI - undefined
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> just for fun </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="name">
+            <i>Saulius Alisauskas (Saul)</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>HOME</span>
+                </a>
+            </li>
+            <!--<li >-->
+                <!--<a href="/tags">-->
+                    <!--<i class="iconfont icon-biaoqian1"></i>-->
+                    <!--<span>TAGS</span>-->
+                <!--</a>-->
+            <!--</li>-->
+            <li >
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>ARCHIVES</span>
+                </a>
+            </li>
+            <!--<li >-->
+                <!--<a href="/about/">-->
+                    <!--<i class="iconfont icon-guanyu2"></i>-->
+                    <!--<span>ABOUT</span>-->
+                <!--</a>-->
+            <!--</li>-->
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Docker"><span class="toc-text">Docker</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Django"><span class="toc-text">Django</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Html-template"><span class="toc-text">Html template:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#View-controller"><span class="toc-text">View controller</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Execution-controller"><span class="toc-text">Execution controller</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Software-used"><span class="toc-text">Software used</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> just for fun </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        Safe python execution via Docker and Django Web UI
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2018-09-11 21:51:44</span></span>
+        
+        </span>
+        <span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <p>So I decided to explore the idea of running python code in docker. Always wanted to try Django web framework so this was my chance J.</p>
+<p>What I ended up doing is tiny Web page where you can enter python code which gets executed inside docker container and resulting python console output displayed to user. Sure this is just a proof of concept, but something close to this could be used to safely execute custom code provided by client in some real product. Client code can be easily wrapped in order to provide additional domain specific functions and libraries.</p>
+<p>It is up to you imagination where and how to use this, for me it was a simple one day project and I had fun doing it. So here is what I have done:</p>
+<h1 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h1><p>For this demo we will need only very simple container that can run python. There are many already available, but for my specific case I needed to run it using socks proxy so I installed requests[socks]:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">FROM python:3</span><br><span class="line">RUN pip install requests[socks]</span><br></pre></td></tr></table></figure>
+<p>To build docker image: <code>docker build -t pythonrun .</code></p>
+<h1 id="Django"><a href="#Django" class="headerlink" title="Django"></a>Django</h1><p>We will need a web page where we can submit the page and a view class to handle the submitted code. I will skip intermediate Django files as there is nothing special in there and to you can see them in provided source code link.</p>
+<h2 id="Html-template"><a href="#Html-template" class="headerlink" title="Html template:"></a>Html template:</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Run Python in docker through Django <span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">&#123;% if error_message %&#125;<span class="tag">&lt;<span class="name">p</span>&gt;</span><span class="tag">&lt;<span class="name">strong</span>&gt;</span>&#123;&#123; error_message &#125;&#125;<span class="tag">&lt;/<span class="name">strong</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span>&#123;% endif %&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">"&#123;% url 'submit' %&#125;"</span> <span class="attr">method</span>=<span class="string">"post"</span>&gt;</span></span><br><span class="line">&#123;% csrf_token %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">hidden</span> <span class="attr">type</span>=<span class="string">"name"</span> <span class="attr">name</span>=<span class="string">"script_name"</span> <span class="attr">id</span>=<span class="string">"script_name"</span> <span class="attr">value</span>=<span class="string">"test1"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">textarea</span> <span class="attr">name</span>=<span class="string">"script_code"</span> <span class="attr">id</span>=<span class="string">"script_code"</span> <span class="attr">cols</span>=<span class="string">"120"</span> <span class="attr">rows</span>=<span class="string">"15"</span>&gt;</span><span class="tag">&lt;/<span class="name">textarea</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"submit"</span> <span class="attr">value</span>=<span class="string">"Run Now"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>All we need from it is text-field to enter the code (“script_code”)</p>
+<h2 id="View-controller"><a href="#View-controller" class="headerlink" title="View controller"></a>View controller</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.http <span class="keyword">import</span> HttpResponse</span><br><span class="line"><span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render</span><br><span class="line"><span class="keyword">from</span> django.views <span class="keyword">import</span> generic</span><br><span class="line"><span class="keyword">import</span> pyexecutor</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">(request)</span>:</span> <span class="comment"># render page</span></span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">'enterpythoncode.html'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">submit</span><span class="params">(request)</span>:</span> <span class="comment"># handle submit button</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        script_code = request.POST[<span class="string">'script_code'</span>]</span><br><span class="line">        script_name = request.POST[<span class="string">'script_name'</span>]</span><br><span class="line">    <span class="keyword">except</span> (KeyError):</span><br><span class="line">        <span class="keyword">return</span> render(request, <span class="string">'templates/error.html'</span>, &#123;</span><br><span class="line">            <span class="string">'error_message'</span>: <span class="string">"Some error happened"</span>,</span><br><span class="line">        &#125;)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        file_name = pyexecutor.create_script_file(script_name, script_code)</span><br><span class="line">        <span class="keyword">return</span> HttpResponse(pyexecutor.execute_file(file_name))</span><br></pre></td></tr></table></figure>
+<h2 id="Execution-controller"><a href="#Execution-controller" class="headerlink" title="Execution controller"></a>Execution controller</h2><p>Now let’s create pythong script that will handle actual execution of python code inside the container </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">pyexecutor.py</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_script_file</span><span class="params">(script_name, script_code)</span>:</span></span><br><span class="line">    <span class="string">"""Create executable python file by using pre-exisinting template and injecting provided code"""</span></span><br><span class="line">    script_code = read_template().replace(<span class="string">"#&#123;&#123; USER_CODE &#125;&#125;"</span>, script_code)</span><br><span class="line">    file_name = <span class="string">"runtime/script-%s.py"</span> % script_name</span><br><span class="line">    <span class="keyword">with</span> open(file_name, <span class="string">"w"</span>) <span class="keyword">as</span> pyfile:</span><br><span class="line">        pyfile.write(<span class="string">"%s"</span> % script_code)</span><br><span class="line">    st = os.stat(file_name)</span><br><span class="line">    <span class="comment"># Make file executable</span></span><br><span class="line">    os.chmod(file_name, st.st_mode | stat.S_IEXEC)</span><br><span class="line">    <span class="keyword">return</span> file_name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_template</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">""" Read template contents into var"""</span></span><br><span class="line">    <span class="keyword">with</span> open(<span class="string">"pyexec/script_wrapper.py"</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">return</span> f.read()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">execute_file</span><span class="params">(file_name)</span>:</span></span><br><span class="line">    <span class="string">"""Execute given python file in docker container"""</span></span><br><span class="line">    <span class="keyword">return</span> cli(<span class="string">"./pyexec/run_in_docker.sh %s"</span> % file_name)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cli</span><span class="params">(line)</span>:</span></span><br><span class="line">    <span class="string">""" Execute given cli command"""</span></span><br><span class="line">    response = subprocess.check_output(line.split(<span class="string">" "</span>)).decode(<span class="string">'utf-8'</span>)</span><br><span class="line">    <span class="keyword">return</span> response</span><br></pre></td></tr></table></figure>
+<p>Here we inject user provided python code into template <code>pyexec/script_wrapper.py</code> and from resulting contents create executable python file. In my case, template contains few function for demo purposes but it is just to showcase that you could for example import your product specific libraries and make them available to user code.</p>
+<p>Final python file is passed to <code>run_in_docker.sh</code> bash script which executes it inside container and returns resulting stdout.</p>
+<p>Executing python file inside docker container</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">run_in_docker.sh</span><br><span class="line"></span><br><span class="line"><span class="meta">#!/usr/bin/env bash</span></span><br><span class="line">script=<span class="variable">$1</span></span><br><span class="line">docker run --rm -v <span class="string">"<span class="variable">$PWD</span>/"</span><span class="variable">$script</span>:/root/script.py pythonrun python /root/script.py</span><br></pre></td></tr></table></figure>
+<p>All we do here is mount our python file into container using volume mount and tell it execute it. Container is destroyed after execution.</p>
+<h1 id="Software-used"><a href="#Software-used" class="headerlink" title="Software used"></a>Software used</h1><ul>
+<li>Django: 1.9.5 (check yours with python -m django –version)</li>
+<li>Docker version 1.12.5, build 7392c3b</li>
+<li>Python 3.5.2</li>
+<li>Ubuntu 14.04.5 LTS</li>
+<li>Source code: <a href="https://github.com/noiseoverip/webpyindocker" target="_blank" rel="noopener">https://github.com/noiseoverip/webpyindocker</a></li>
+</ul>
+
+        
+        <div id="comment-container">
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+</html>
