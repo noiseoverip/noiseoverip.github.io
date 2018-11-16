@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Safe python execution via Docker and Django Web UI</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+	<meta name="generator" content="Hugo 0.51" />
+	
+	
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+	<link rel="stylesheet" href="/noiseoverip.github.io/css/style.css">
+	<link rel="shortcut icon" href="/noiseoverip.github.io/favicon.ico">
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container">
+		<div class="logo" role="banner">
+			<a class="logo__link" href="/noiseoverip.github.io" title="Saulius Blog" rel="home">
+				<div class="logo__title">Saulius Blog</div>
+				
+			</a>
+		</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<section class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Safe python execution via Docker and Django Web UI</h1>
+			<div class="post__meta meta">
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/noiseoverip.github.io/categories/projects" rel="category">projects</a></span>
+</div>
+</div>
+		</header><div class="content post__content clearfix">
+			
+
+<p>So I decided to explore the idea of running python code in docker. Always wanted to try Django web framework so this was my chance J.</p>
+
+<p>What I ended up doing is tiny Web page where you can enter python code which gets executed inside docker container and resulting python console output displayed to user. Sure this is just a proof of concept, but something close to this could be used to safely execute custom code provided by client in some real product. Client code can be easily wrapped in order to provide additional domain specific functions and libraries.</p>
+
+<p>It is up to you imagination where and how to use this, for me it was a simple one day project and I had fun doing it. So here is what I have done:</p>
+
+<h1 id="docker">Docker</h1>
+
+<p>For this demo we will need only very simple container that can run python. There are many already available, but for my specific case I needed to run it using socks proxy so I installed requests with socks proxy enabled:</p>
+
+<pre><code>dockerfile
+
+FROM python:3
+RUN pip install requests[socks]
+</code></pre>
+
+<p>To build docker image: <code>docker build -t pythonrun .</code></p>
+
+<h1 id="django">Django</h1>
+
+<p>We will need a web page where we can submit the page and a view class to handle the submitted code. I will skip intermediate Django files as there is nothing special in there and to you can see them in provided source code link.</p>
+
+<h2 id="html-template">Html template:</h2>
+
+<pre><code class="language-html">&lt;h1&gt;Run Python in docker through Django &lt;/h1&gt;
+{% if error_message %}&lt;p&gt;&lt;strong&gt;{{ error_message }}&lt;/strong&gt;&lt;/p&gt;{% endif %}
+&lt;form action=&quot;{% url 'submit' %}&quot; method=&quot;post&quot;&gt;
+{% csrf_token %}
+    &lt;input hidden type=&quot;name&quot; name=&quot;script_name&quot; id=&quot;script_name&quot; value=&quot;test1&quot; /&gt;
+    &lt;textarea name=&quot;script_code&quot; id=&quot;script_code&quot; cols=&quot;120&quot; rows=&quot;15&quot;&gt;&lt;/textarea&gt;
+    &lt;input type=&quot;submit&quot; value=&quot;Run Now&quot; /&gt;
+&lt;/form&gt;
+</code></pre>
+
+<p>All we need from it is text-field to enter the code (&ldquo;script_code&rdquo;)</p>
+
+<h2 id="view-controller">View controller</h2>
+
+<pre><code class="language-python">from django.http import HttpResponse
+from django.shortcuts import render
+from django.views import generic
+import pyexecutor
+
+def index(request): # render page
+    return render(request, 'enterpythoncode.html')
+
+def submit(request): # handle submit button
+    try:
+        script_code = request.POST['script_code']
+        script_name = request.POST['script_name']
+    except (KeyError):
+        return render(request, 'templates/error.html', {
+            'error_message': &quot;Some error happened&quot;,
+        })
+    else:
+        file_name = pyexecutor.create_script_file(script_name, script_code)
+        return HttpResponse(pyexecutor.execute_file(file_name))
+</code></pre>
+
+<h2 id="execution-controller">Execution controller</h2>
+
+<p>Now let&rsquo;s create pythong script that will handle actual execution of python code inside the container</p>
+
+<pre><code class="language-python">pyexecutor.py
+
+def create_script_file(script_name, script_code):
+    &quot;&quot;&quot;Create executable python file by using pre-exisinting template and injecting provided code&quot;&quot;&quot;
+    script_code = read_template().replace(&quot;#{{ USER_CODE }}&quot;, script_code)
+    file_name = &quot;runtime/script-%s.py&quot; % script_name
+    with open(file_name, &quot;w&quot;) as pyfile:
+        pyfile.write(&quot;%s&quot; % script_code)
+    st = os.stat(file_name)
+    # Make file executable
+    os.chmod(file_name, st.st_mode | stat.S_IEXEC)
+    return file_name
+
+
+def read_template():
+    &quot;&quot;&quot; Read template contents into var&quot;&quot;&quot;
+    with open(&quot;pyexec/script_wrapper.py&quot;) as f:
+        return f.read()
+
+
+def execute_file(file_name):
+    &quot;&quot;&quot;Execute given python file in docker container&quot;&quot;&quot;
+    return cli(&quot;./pyexec/run_in_docker.sh %s&quot; % file_name)
+
+
+def cli(line):
+    &quot;&quot;&quot; Execute given cli command&quot;&quot;&quot;
+    response = subprocess.check_output(line.split(&quot; &quot;)).decode('utf-8')
+    return response
+</code></pre>
+
+<p>Here we inject user provided python code into template <code>pyexec/script_wrapper.py</code> and from resulting contents create executable python file. In my case, template contains few function for demo purposes but it is just to showcase that you could for example import your product specific libraries and make them available to user code.</p>
+
+<p>Final python file is passed to <code>run_in_docker.sh</code> bash script which executes it inside container and returns resulting stdout.</p>
+
+<p>Executing python file inside docker container</p>
+
+<pre><code class="language-bash">run_in_docker.sh
+
+#!/usr/bin/env bash
+script=$1
+docker run --rm -v &quot;$PWD/&quot;$script:/root/script.py pythonrun python /root/script.py
+</code></pre>
+
+<p>All we do here is mount our python file into container using volume mount and tell it execute it. Container is destroyed after execution.</p>
+
+<h1 id="software-used">Software used</h1>
+
+<ul>
+<li>Django: 1.9.5 (check yours with python -m django &ndash;version)</li>
+<li>Docker version 1.12.5, build 7392c3b</li>
+<li>Python 3.5.2</li>
+<li>Ubuntu 14.04.5 LTS</li>
+<li>Source code: <a href="https://github.com/noiseoverip/webpyindocker">https://github.com/noiseoverip/webpyindocker</a></li>
+</ul>
+
+		</div>
+		
+<div class="post__tags tags clearfix">
+	<svg class="icon icon-tag" width="16" height="16" viewBox="0 0 16 16"><path d="M16 9.5c0 .373-.24.74-.5 1l-5 5c-.275.26-.634.5-1 .5-.373 0-.74-.24-1-.5L1 8a2.853 2.853 0 0 1-.7-1C.113 6.55 0 5.973 0 5.6V1.4C0 1.034.134.669.401.401.67.134 1.034 0 1.4 0h4.2c.373 0 .95.113 1.4.3.45.187.732.432 1 .7l7.5 7.502c.26.274.5.632.5.998zM3.5 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item"><a class="tags__link btn" href="/noiseoverip.github.io/tags/docker/" rel="tag">docker</a></li>
+		<li class="tags__item"><a class="tags__link btn" href="/noiseoverip.github.io/tags/python/" rel="tag">python</a></li>
+	</ul>
+</div>
+	</article>
+</main>
+
+
+
+
+			</section>
+			<aside class="sidebar">
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="noiseoverip.github.io/post/safe-python-on-docker/">Safe python execution via Docker and Django Web UI</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/noiseoverip.github.io/categories/projects">Projects</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/noiseoverip.github.io/tags/docker" title="Docker">Docker</a>
+		<a class="widget-taglist__link widget__link btn" href="/noiseoverip.github.io/tags/python" title="Python">Python</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2018 Saulius Blog.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/noiseoverip.github.io/js/menu.js"></script></body>
+</html>

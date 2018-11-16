@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>noiseoverip.github.io/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>noiseoverip.github.io/tags/docker/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>noiseoverip.github.io/post/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>noiseoverip.github.io/categories/projects/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>noiseoverip.github.io/tags/python/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>noiseoverip.github.io/post/safe-python-on-docker/</loc>
+  </url>
+  
+  <url>
+    <loc>noiseoverip.github.io/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>noiseoverip.github.io/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>
