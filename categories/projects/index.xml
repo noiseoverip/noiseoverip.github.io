@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Projects on Saulius Blog</title>
-    <link>noiseoverip.github.io/categories/projects/</link>
+    <link>https://noiseoverip.github.io/categories/projects/</link>
     <description>Recent content in Projects on Saulius Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="noiseoverip.github.io/categories/projects/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://noiseoverip.github.io/categories/projects/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Safe python execution via Docker and Django Web UI</title>
-      <link>noiseoverip.github.io/post/safe-python-on-docker/</link>
+      <link>https://noiseoverip.github.io/post/safe-python-on-docker/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>noiseoverip.github.io/post/safe-python-on-docker/</guid>
+      <guid>https://noiseoverip.github.io/post/safe-python-on-docker/</guid>
       <description>So I decided to explore the idea of running python code in docker. Always wanted to try Django web framework so this was my chance J.
 What I ended up doing is tiny Web page where you can enter python code which gets executed inside docker container and resulting python console output displayed to user. Sure this is just a proof of concept, but something close to this could be used to safely execute custom code provided by client in some real product.</description>
     </item>

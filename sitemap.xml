@@ -3,41 +3,41 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>noiseoverip.github.io/categories/</loc>
+    <loc>https://noiseoverip.github.io/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>noiseoverip.github.io/tags/docker/</loc>
+    <loc>https://noiseoverip.github.io/tags/docker/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>noiseoverip.github.io/post/</loc>
+    <loc>https://noiseoverip.github.io/post/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>noiseoverip.github.io/categories/projects/</loc>
+    <loc>https://noiseoverip.github.io/categories/projects/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>noiseoverip.github.io/tags/python/</loc>
+    <loc>https://noiseoverip.github.io/tags/python/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>noiseoverip.github.io/post/safe-python-on-docker/</loc>
+    <loc>https://noiseoverip.github.io/post/safe-python-on-docker/</loc>
   </url>
   
   <url>
-    <loc>noiseoverip.github.io/</loc>
+    <loc>https://noiseoverip.github.io/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>noiseoverip.github.io/tags/</loc>
+    <loc>https://noiseoverip.github.io/tags/</loc>
     <priority>0</priority>
   </url>
   
