@@ -4,14 +4,14 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>dns - Saulius Blog</title>
+	<title>systemd - Saulius Blog</title>
 	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
 	<meta name="description" content="">
 	
 	
 	<link rel="dns-prefetch" href="//fonts.googleapis.com">
 	<link rel="dns-prefetch" href="//fonts.gstatic.com">
-	<link rel="alternate" type="application/rss+xml" href="/tags/dns/index.xml" title="Saulius Blog">
+	<link rel="alternate" type="application/rss+xml" href="/tags/systemd/index.xml" title="Saulius Blog">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
 	<link rel="stylesheet" href="/css/style.css">
 	
@@ -36,18 +36,20 @@
 			
 <main class="main list" role="main">
 	<header class="main__header">
-		<h1 class="main__title">dns</h1>
+		<h1 class="main__title">systemd</h1>
 	</header><article class="list__item post">
 	<header class="list__header">
 		<h3 class="list__title post__title ">
-			<a href="/post/coredns_on_ubuntu18/" rel="bookmark">
-			Running CoreDNS on Ubuntu 18.04
+			<a href="/post/os_provisioning_onfirstboot/" rel="bookmark">
+			Run on first boot after OS install
 			</a>
 		</h3>
 		
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		Systemd runs a local DNS stub resolver on 127.0.0.53:53. It acts as a proxy and forwards all DNS queries to Google or Cloudflare DNS servers (1.1.1.1, 8.8.8.8, 1.0.0.1, 8.8.4.4) by default. All local DNS queries get resolved through it default resolver configuration in /etc/resolv.conf points to it (nameserver 127.0.0.53). This file is actually a symbolic link to /var/run/systemd/resolve/stub-resolv.conf which is a dynamic resolver (routines in C library) configuration managed by systemd-resolved
+		Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&hellip;
+This can be done creating a systemd service with a marker that will be guaranteed to be run only once.
+Systemd service Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test.
 	</div>
 </article>
 </main>

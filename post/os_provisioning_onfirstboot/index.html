@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Run on first boot after OS install - Saulius Blog</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+	
+	
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+	<link rel="stylesheet" href="/css/style.css">
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container">
+		<div class="logo">
+			<a class="logo__link" href="/" title="Saulius Blog" rel="home">
+				<div class="logo__title">Saulius Blog</div>
+				
+			</a>
+		</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Run on first boot after OS install</h1>
+			
+		</header><div class="content post__content clearfix">
+			
+
+<p>Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&hellip;</p>
+
+<p>This can be done creating a systemd service with a marker that will be guaranteed to be run only once.</p>
+
+<h1 id="systemd-service">Systemd service</h1>
+
+<p>Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test.executed file will be present)</p>
+
+<pre><code>[Unit]
+StartLimitInterval=200                        # Will retry only within 200 seconds window
+StartLimitBurst=5                             # Retry maximum 5 times
+After=network-online.target                   # Only after networking stack has started
+Wants=network-online.target                   # Not sure why/if this one is needed
+ConditionPathExists=!/opt/test.executed       # Run only if given path doesn't exist
+
+[Service]
+ExecStart=/opt/doSomeStuff.sh                 # Script to be executed
+ExecStartPost=/bin/touch /opt/test.executed   # Create a marker file after succesful execution
+Restart=on-failure                            # Restart only if it fails
+RestartSec=5                                  # Restart after 5 second delay
+</code></pre>
+
+<h1 id="register-systemd-service-in-pre-seed">Register systemd service in pre-seed</h1>
+
+<p>Now we need to put it into preseed. The way I will show is kind of ugly (not sure if there is a nice way to express this better). Below config will create service file and enable it.</p>
+
+<pre><code>d-i preseed/late_command string \
+  /bin/echo &quot;[Unit]&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;StartLimitInterval=200&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;StartLimitBurst=5&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;After=network-online.target&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;Wants=network-online.target&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;ConditionPathExists=!/opt/test.executed&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;[Service]&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;ExecStart=/opt/doSomeStuff.sh&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;ExecStartPost=/bin/touch /opt/test.executed&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;Restart=on-failure&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;RestartSec=5&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  in-target systemctl enable myservice.service
+</code></pre>
+
+<p>An alternative way would be to pull the file from web server or configure your OS provisioning tool to place the file.
+TODO: how to pull from web server ?
+TODO: how to configure foreman ?
+TODO: how to configure digital rebar ?</p>
+
+		</div>
+		
+<div class="post__tags tags clearfix">
+	<svg class="tags__icon icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item"><a class="tags__link btn" href="/tags/systemd/" rel="tag">systemd</a></li>
+		<li class="tags__item"><a class="tags__link btn" href="/tags/ubuntu/" rel="tag">ubuntu</a></li>
+	</ul>
+</div>
+	</article>
+</main>
+
+
+
+
+			</div>
+			<aside class="sidebar">
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/post/os_provisioning_onfirstboot/">Run on first boot after OS install</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/coredns_on_ubuntu18/">Running CoreDNS on Ubuntu 18.04</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/safe-python-on-docker/">Safe python execution via Docker and Django Web UI</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/categories/guides">Guides</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/projects">Projects</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/dns" title="Dns">Dns</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/docker" title="Docker">Docker</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python" title="Python">Python</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/systemd" title="Systemd">Systemd</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ubuntu" title="Ubuntu">Ubuntu</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2019 Saulius Blog.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script></body>
+</html>

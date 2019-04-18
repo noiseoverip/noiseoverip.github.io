@@ -13,6 +13,10 @@
   </url>
   
   <url>
+    <loc>https://noiseoverip.github.io/post/os_provisioning_onfirstboot/</loc>
+  </url>
+  
+  <url>
     <loc>https://noiseoverip.github.io/post/coredns_on_ubuntu18/</loc>
   </url>
   
@@ -52,6 +56,16 @@
   
   <url>
     <loc>https://noiseoverip.github.io/tags/python/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/tags/systemd/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/tags/ubuntu/</loc>
     <priority>0</priority>
   </url>
   

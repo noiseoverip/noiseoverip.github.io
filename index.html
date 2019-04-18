@@ -39,6 +39,20 @@
 	<article class="list__item post">
 	<header class="list__header">
 		<h3 class="list__title post__title ">
+			<a href="/post/os_provisioning_onfirstboot/" rel="bookmark">
+			Run on first boot after OS install
+			</a>
+		</h3>
+		
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&hellip;
+This can be done creating a systemd service with a marker that will be guaranteed to be run only once.
+Systemd service Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test.
+	</div>
+</article><article class="list__item post">
+	<header class="list__header">
+		<h3 class="list__title post__title ">
 			<a href="/post/coredns_on_ubuntu18/" rel="bookmark">
 			Running CoreDNS on Ubuntu 18.04
 			</a>
@@ -71,6 +85,7 @@ What I ended up doing is tiny Web page where you can enter python code which get
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/post/os_provisioning_onfirstboot/">Run on first boot after OS install</a></li>
 			<li class="widget__item"><a class="widget__link" href="/post/coredns_on_ubuntu18/">Running CoreDNS on Ubuntu 18.04</a></li>
 			<li class="widget__item"><a class="widget__link" href="/post/safe-python-on-docker/">Safe python execution via Docker and Django Web UI</a></li>
 		</ul>
@@ -91,6 +106,8 @@ What I ended up doing is tiny Web page where you can enter python code which get
 		<a class="widget-taglist__link widget__link btn" href="/tags/dns" title="Dns">Dns</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/docker" title="Docker">Docker</a>
 		<a class="widget-taglist__link widget__link btn" href="/tags/python" title="Python">Python</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/systemd" title="Systemd">Systemd</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/ubuntu" title="Ubuntu">Ubuntu</a>
 	</div>
 </div>
 </aside>
