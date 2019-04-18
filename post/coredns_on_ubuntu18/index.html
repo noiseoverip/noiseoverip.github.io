@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Running CoreDNS on Ubuntu 18.04 - Saulius Blog</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="">
+	
+	
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+	<link rel="stylesheet" href="/css/style.css">
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container">
+		<div class="logo">
+			<a class="logo__link" href="/" title="Saulius Blog" rel="home">
+				<div class="logo__title">Saulius Blog</div>
+				
+			</a>
+		</div>
+		<div class="divider"></div>
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Running CoreDNS on Ubuntu 18.04</h1>
+			
+		</header><div class="content post__content clearfix">
+			
+
+<p>Systemd runs a local DNS stub resolver on <code>127.0.0.53:53</code>. It acts as a proxy and forwards all DNS queries to Google or Cloudflare DNS servers (<code>1.1.1.1, 8.8.8.8, 1.0.0.1, 8.8.4.4</code>) by default. All local DNS queries get resolved through it default resolver configuration in <code>/etc/resolv.conf</code> points to it (<code>nameserver 127.0.0.53</code>). This file is actually a symbolic link to <code>/var/run/systemd/resolve/stub-resolv.conf</code> which is a dynamic resolver (routines in C library) configuration managed by systemd-resolved</p>
+
+<p>If you want to run your own authoritative DNS server on Ubuntu 18.04 you will probably want to disable this systemd&rsquo;s DNS stub service, to do its, edit <code>/etc/systemd/resolve.conf</code> and set <code>DNSStubListener=no</code>, then <code>systemctl restart systemd-resolved</code>.</p>
+
+<blockquote>
+<p>Keep in mind that since DNS stub will be stopped but resolver (<code>/etc/resolv.conf</code>) still expects something to answer queries on 127.0.0.53 you will not be able to resolve DNS names anymore. To fix this temporarily, replace symlink <code>/etc/resolv.conf</code> with file and replace <code>nameserver 127.0.0.53</code> with working reachable DNS root server, for example <code>nameserver 8.8.8.8</code>. Permanent fix depends on what you are trying to achieve. If you will eventually run your own DNS server and bind it to port 0.0.0.0:53, then nothing else needs to be changed on systemd side.</p>
+</blockquote>
+
+<h2 id="running-coredns-as-authoritative-server">Running coredns as authoritative server</h2>
+
+<p>A simple way to run it is to run it from docker, but we still have other options:
+* Run it as root user on host networking - not so secure since if coredns gets compromised attacker will have root access to your server
+* Run it as limited priviledge user in host networking - better, but still, compromised container would expose host networking to attacker
+* Run it as a limited priviledge user in isolated networking name space - this is probably most secure way to run it (while still running it in docker).</p>
+
+<p>First, lets create CoreDNS configuration file in <code>/etc/coredns/Corefile</code></p>
+
+<pre><code>example.com {
+    file /etc/coredns/db.example.com
+    log            # enable query logs
+}
+
+. {
+    forward . 8.8.8.8
+}
+</code></pre>
+
+<p>And zone file in <code>/etc/coredns/db.example.com</code></p>
+
+<pre><code>$ORIGIN example.com.
+@	3600 IN	SOA example.com. noc.example.com. (
+				2017042745 ; serial
+				7200       ; refresh (2 hours)
+				3600       ; retry (1 hour)
+				1209600    ; expire (2 weeks)
+				3600       ; minimum (1 hour)
+				)
+example         IN A 127.0.0.1
+</code></pre>
+
+<p>This configuration defines one DNS zone: example.com, one DNS name: example and forwards other queries to 8.8.8.8 (Google DNS server)</p>
+
+<p>Run container:</p>
+
+<pre><code>docker run --network host -v /etc/coredns:/etc/coredns coredns/coredns -conf /etc/coredns/Corefile`
+</code></pre>
+
+<p>Now on the same host, run <code>dig +short example.example.com 127.0.0.1 -p 53</code>, you should get <code>127.0.0.1</code> as response.</p>
+
+<p>In this mode, our container is running as root user. We can see that if list processes:</p>
+
+<pre><code>$ps aux | grep coredn
+root      7697  0.5  0.6 144772 25500 ?        Ssl  03:54   0:00 /coredns -conf /etc/coredns/Corefile
+</code></pre>
+
+<p>It also runs in host networking mode, which means any process running inside container has access to all networking on this machine. What if coredns has a security vulnerability ? Attacker could gain acces to root user. To protect our selfs from that, lets run container as a less priviledged user use network name spaces so we do&rsquo;t expose host networking to coredns user.</p>
+
+<p>Create unprivileged user and make sure it can read our config files:</p>
+
+<pre><code>sudo user add coredns
+chmod -R o+r /etc/coredns
+COREDNSID=$(id -u coredns) # save created user id
+</code></pre>
+
+<p>Run container:</p>
+
+<pre><code>docker run -u $COREDNSID -p 127.0.0.1:53:1053/udp -v /etc/coredns:/etc/coredns coredns/coredns -conf /etc/coredns/Corefile -dns.port 1053
+</code></pre>
+
+<blockquote>
+<p><code>-u $COREDNSID</code> - run as provided user id, the reason we don&rsquo;t use name <code>coredns</code> is because no such user actually exists inside the container image so it would not be able to find id of such user, but it is perfectly fine to use user id.
+<code>127.0.0.1:53:1053/udp</code> - bind local host port 53 to containers 1053, you will probably want to replace 127.0.0.1 with one of your network card IPs so you can expose your DNS to the network.
+<code>-dns.port 1053</code> - run coredns on port 1053. This is because unpriviledged users are not allowed to run services on port 53.</p>
+</blockquote>
+
+<p>Now you can run <code>ps aux | grep coredns</code> again and you will see it running as user coredns.</p>
+
+<p>Now after these changes, attacker would only gain access to user <code>coredns</code> which will not be able to do much. You could take extra steps to limit what this user could do.</p>
+
+<h3 id="do-we-really-need-docker">Do we really need docker ?</h3>
+
+<p>Coredns is written in GO language, so it is just a single binary file and it relatively easy to run it.</p>
+
+<p>Download required files and place it home directory of the user <code>coredns</code> we created previous:</p>
+
+<pre><code>curl -o coredns.tar.gz http...
+tar -xvf coredns.tar.gz /home/coredns
+</code></pre>
+
+<p>Create systemd service file (this will work just fine, but for real system you will probably want to modify some systemd parameters like Limit*, TasksMax&hellip;):</p>
+
+<pre><code>[Unit]
+Description=CoreDNS service
+After=network.target
+
+[Service]
+User=coredns
+ExecStart=/home/coredns/CoreDNS
+WorkingDirectory=/home/coredns
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>Here we point the service to run under user coredns and point it to configuration files which we already created, just copy them over to /home/coredns</p>
+
+<p>Register and start the service</p>
+
+<pre><code>systemctl enable coredns
+systemctl start coredns
+</code></pre>
+
+<h2 id="dns-based-load-balancing">DNS based load balancing</h2>
+
+<p>One of the easier ways to load balance access to your service is to specify multiple records for the same DNS name. This way, application can make use of them when when resolving DNS name. However, depending on application, it might choose target IP randomly, based on some algorythm or simple take the first record. In the latter case, if the list of IPs that DNS server is returning is static (IP addresses are listed in the samer order) we won&rsquo;t achive required load balancing effect. In this case it is handy to make DNS server shuffle the list on each name resolution request.
+To enable load balancing feature, in your CoreDNS zone configuration section add <code>loadbalance round_robin</code>. At the time of writing the only policy option is <code>round_robin</code>.</p>
+
+<p>Example CoreFile:</p>
+
+<pre><code>example.com {
+  loadbalance round_robin
+  file /etc/coredns/db.example.com  
+}
+
+. {
+    forward . 8.8.8.8
+}
+</code></pre>
+
+<p>Example zone config:</p>
+
+<pre><code>$ORIGIN example.com.
+@	3600 IN	SOA example.com. noc.example.com. (
+				2017042745 ; serial
+				7200       ; refresh (2 hours)
+				3600       ; retry (1 hour)
+				1209600    ; expire (2 weeks)
+				3600       ; minimum (1 hour)
+				)
+example1         IN A 127.0.0.1
+example2         IN A 127.0.0.2
+example3         IN A 127.0.0.3
+</code></pre>
+
+<h1 id="references">References</h1>
+
+<p><a href="https://unix.stackexchange.com/questions/500536/what-are-dns-server-resolver-and-stub-resolver">terminology - What are DNS server, resolver and stub resolver? - Unix &amp; Linux Stack Exchange</a></p>
+
+<p><a href="http://man7.org/linux/man-pages/man5/resolv.conf.5.html">resolv.conf(5) - Linux manual page</a></p>
+
+<p><a href="https://ns1.com/resources/dns-types-records-servers-and-queries">DNS: Types of DNS Records, DNS Servers and DNS Query Types</a></p>
+
+<p><a href="https://wiki.archlinux.org/index.php/Systemd-resolved">systemd-resolved - ArchWiki</a></p>
+
+<p><a href="https://www.freedesktop.org/software/systemd/man/systemd.exec.html">systemd.exec</a></p>
+
+<p><a href="https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html">systemd.resource-control</a></p>
+
+		</div>
+		
+<div class="post__tags tags clearfix">
+	<svg class="tags__icon icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item"><a class="tags__link btn" href="/tags/docker/" rel="tag">docker</a></li>
+		<li class="tags__item"><a class="tags__link btn" href="/tags/dns/" rel="tag">dns</a></li>
+	</ul>
+</div>
+	</article>
+</main>
+
+
+
+
+			</div>
+			<aside class="sidebar">
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/post/coredns_on_ubuntu18/">Running CoreDNS on Ubuntu 18.04</a></li>
+			<li class="widget__item"><a class="widget__link" href="/post/safe-python-on-docker/">Safe python execution via Docker and Django Web UI</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/categories/guides">Guides</a></li>
+			<li class="widget__item"><a class="widget__link" href="/categories/projects">Projects</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/tags/dns" title="Dns">Dns</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/docker" title="Docker">Docker</a>
+		<a class="widget-taglist__link widget__link btn" href="/tags/python" title="Python">Python</a>
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2019 Saulius Blog.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/js/menu.js"></script></body>
+</html>

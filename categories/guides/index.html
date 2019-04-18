@@ -4,14 +4,14 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Posts - Saulius Blog</title>
+	<title>guides - Saulius Blog</title>
 	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
 	<meta name="description" content="">
 	
 	
 	<link rel="dns-prefetch" href="//fonts.googleapis.com">
 	<link rel="dns-prefetch" href="//fonts.gstatic.com">
-	<link rel="alternate" type="application/rss+xml" href="/post/index.xml" title="Saulius Blog">
+	<link rel="alternate" type="application/rss+xml" href="/categories/guides/index.xml" title="Saulius Blog">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
 	<link rel="stylesheet" href="/css/style.css">
 	
@@ -36,7 +36,7 @@
 			
 <main class="main list" role="main">
 	<header class="main__header">
-		<h1 class="main__title">Posts</h1>
+		<h1 class="main__title">guides</h1>
 	</header><article class="list__item post">
 	<header class="list__header">
 		<h3 class="list__title post__title ">
@@ -48,19 +48,6 @@
 	</header>
 	<div class="content list__excerpt post__content clearfix">
 		Systemd runs a local DNS stub resolver on 127.0.0.53:53. It acts as a proxy and forwards all DNS queries to Google or Cloudflare DNS servers (1.1.1.1, 8.8.8.8, 1.0.0.1, 8.8.4.4) by default. All local DNS queries get resolved through it default resolver configuration in /etc/resolv.conf points to it (nameserver 127.0.0.53). This file is actually a symbolic link to /var/run/systemd/resolve/stub-resolv.conf which is a dynamic resolver (routines in C library) configuration managed by systemd-resolved
-	</div>
-</article><article class="list__item post">
-	<header class="list__header">
-		<h3 class="list__title post__title ">
-			<a href="/post/safe-python-on-docker/" rel="bookmark">
-			Safe python execution via Docker and Django Web UI
-			</a>
-		</h3>
-		
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		So I decided to explore the idea of running python code in docker. Always wanted to try Django web framework so this was my chance J.
-What I ended up doing is tiny Web page where you can enter python code which gets executed inside docker container and resulting python console output displayed to user. Sure this is just a proof of concept, but something close to this could be used to safely execute custom code provided by client in some real product.
 	</div>
 </article>
 </main>

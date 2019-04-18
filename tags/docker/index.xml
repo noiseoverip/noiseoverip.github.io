@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Docker on Saulius Blog</title>
+    <title>docker on Saulius Blog</title>
     <link>https://noiseoverip.github.io/tags/docker/</link>
-    <description>Recent content in Docker on Saulius Blog</description>
+    <description>Recent content in docker on Saulius Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
 	<atom:link href="https://noiseoverip.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Running CoreDNS on Ubuntu 18.04</title>
+      <link>https://noiseoverip.github.io/post/coredns_on_ubuntu18/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://noiseoverip.github.io/post/coredns_on_ubuntu18/</guid>
+      <description>Systemd runs a local DNS stub resolver on 127.0.0.53:53. It acts as a proxy and forwards all DNS queries to Google or Cloudflare DNS servers (1.1.1.1, 8.8.8.8, 1.0.0.1, 8.8.4.4) by default. All local DNS queries get resolved through it default resolver configuration in /etc/resolv.conf points to it (nameserver 127.0.0.53). This file is actually a symbolic link to /var/run/systemd/resolve/stub-resolv.conf which is a dynamic resolver (routines in C library) configuration managed by systemd-resolved</description>
+    </item>
     
     <item>
       <title>Safe python execution via Docker and Django Web UI</title>

@@ -8,23 +8,12 @@
   </url>
   
   <url>
-    <loc>https://noiseoverip.github.io/tags/docker/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://noiseoverip.github.io/post/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://noiseoverip.github.io/categories/projects/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://noiseoverip.github.io/tags/python/</loc>
-    <priority>0</priority>
+    <loc>https://noiseoverip.github.io/post/coredns_on_ubuntu18/</loc>
   </url>
   
   <url>
@@ -38,6 +27,31 @@
   
   <url>
     <loc>https://noiseoverip.github.io/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/tags/dns/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/tags/docker/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/categories/guides/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/categories/projects/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/tags/python/</loc>
     <priority>0</priority>
   </url>
   
