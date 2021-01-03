@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>systemd on Saul&#39;s Blog</title>
-    <link>https://saulalis.github.io/tags/systemd/</link>
+    <link>https:///noiseoverip.github.io/tags/systemd/</link>
     <description>Recent content in systemd on Saul&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 17 Apr 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://saulalis.github.io/tags/systemd/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 17 Apr 2019 00:00:00 +0000</lastBuildDate><atom:link href="https:///noiseoverip.github.io/tags/systemd/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Run on first boot after OS install</title>
-      <link>https://saulalis.github.io/blog/os_provisioning_onfirstboot/</link>
+      <link>https:///noiseoverip.github.io/blog/os_provisioning_onfirstboot/</link>
       <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://saulalis.github.io/blog/os_provisioning_onfirstboot/</guid>
+      <guid>https:///noiseoverip.github.io/blog/os_provisioning_onfirstboot/</guid>
       <description>Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&amp;hellip;
 This can be done creating a systemd service with a marker that will be guaranteed to be run only once.
 Systemd service Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test.</description>
