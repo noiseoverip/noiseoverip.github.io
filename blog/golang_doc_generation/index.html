@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<title>Generating docs from golang source - Saul&#39;s Blog</title>
+
+<meta name="keywords" content="golang" />
+<meta name="description" content="Generating docs from golang source  Code examples are written in a way to be as short as possible which mean they do not do proper error handling and missuse panic to keep it short.
+ It is very easy to extract comments from go source code to convert them to a different format. 3 special packages are required for this: go/ast and go/parset and go/token
+parser.Parsfile returns *ast.File which gives as access programatic access to various source file parts like comments, functions and fields.">
+<meta name="author" content="Saulius Alisauskas">
+<link rel="canonical" href="https://saulalis.github.io/blog/golang_doc_generation/" />
+<link href="https://saulalis.github.io/assets/css/stylesheet.min.c91c3ed78ea855658ac993096d76c123286df5a7d191c2ed38d133cf22dc97de.css" integrity="sha256-yRw&#43;146oVWWKyZMJbXbBIyht9afRkcLtONEzzyLcl94=" rel="preload stylesheet"
+    as="style">
+<link rel="apple-touch-icon" href="https://saulalis.github.io/apple-touch-icon.png">
+<link rel="icon" href="https://saulalis.github.io/favicon.ico">
+<meta name="generator" content="Hugo 0.76.5" />
+<meta property="og:title" content="Generating docs from golang source" />
+<meta property="og:description" content="Generating docs from golang source  Code examples are written in a way to be as short as possible which mean they do not do proper error handling and missuse panic to keep it short.
+ It is very easy to extract comments from go source code to convert them to a different format. 3 special packages are required for this: go/ast and go/parset and go/token
+parser.Parsfile returns *ast.File which gives as access programatic access to various source file parts like comments, functions and fields." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://saulalis.github.io/blog/golang_doc_generation/" />
+<meta property="article:published_time" content="2020-10-15T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-10-15T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Generating docs from golang source"/>
+<meta name="twitter:description" content="Generating docs from golang source  Code examples are written in a way to be as short as possible which mean they do not do proper error handling and missuse panic to keep it short.
+ It is very easy to extract comments from go source code to convert them to a different format. 3 special packages are required for this: go/ast and go/parset and go/token
+parser.Parsfile returns *ast.File which gives as access programatic access to various source file parts like comments, functions and fields."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Generating docs from golang source",
+  "name": "Generating docs from golang source",
+  "description": "Generating docs from golang source  Code examples are written in a way to be as short as possible which mean they do not do proper error handling and missuse panic to keep it …",
+  "keywords": [
+    "golang"
+  ],
+  "articleBody": "Generating docs from golang source  Code examples are written in a way to be as short as possible which mean they do not do proper error handling and missuse panic to keep it short.\n It is very easy to extract comments from go source code to convert them to a different format. 3 special packages are required for this: go/ast and go/parset and go/token\nparser.Parsfile returns *ast.File which gives as access programatic access to various source file parts like comments, functions and fields.\nSimple example import ( \"go/ast\" \"go/parser\" \"go/token\" ) var fset = token.NewFileSet() var sourceFile *ast.File var filePath = \"PATH_TO_YOUR_GOLANG_SOURCE_FILE\" sourceFile = parser.ParseFile(fset, filePath, nil, parser.ParseComments); err != nil { Now, to we can loop through declarations, check if declaration is a function and print it’s comments\nfor _, cg := range sourceFile.Decls { if function, isFunction := cg.(*ast.FuncDecl); isFunction { fmt.Printf(function.Doc.Text()) }\t} Practical example Now, most likely just printing is not enough so here so here is a more real life example which:\n filters functions: they must start with prefix Action extracts action name using regexp ^Action(.*) -  transforms comment text - removes function name from it writes header and transformed content to a file  Golang source file as input:\n// ActionFly - makes it fly func ActionFly() {} // ActuinSwim - makes it swim func ActionSwim() {} Doc generation output:\n# Fly Makes it fly # Swim Makes it swim Code:\noutputFile := os.Create(... headerRegexp := regexp.MustCompile(`^Action(.*) - `) for _, cg := range sourceFile.Decls { // Make sure it is a function function, isFunction := cg.(*ast.FuncDecl) if !isFunction || !strings.HasPrefix(function.Name.Name, \"Action\") { continue } // Apply regexp to extract action name match := headerRegexp.FindStringSubmatch(function.Doc.Text()) if len(match) ",
+  "wordCount" : "322",
+  "inLanguage": "en",
+  
+  "datePublished": "2020-10-15T00:00:00Z",
+  "dateModified": "2020-10-15T00:00:00Z",
+  "author": {
+    "@type": "Person",
+    "name": "Saulius Alisauskas"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://saulalis.github.io/blog/golang_doc_generation/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Saul's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://saulalis.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="single" id="top">
+<script>
+    
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark');
+        }
+    }
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <p class="logo">
+            <a href="https://saulalis.github.io">Saul&#39;s Blog</a>
+            <span class="theme-toggle">
+                <a id="theme-toggle">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+            </span>
+        </p>
+        <ul class="menu" id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="https://saulalis.github.io/cheats/">
+                    <span>
+                        Cheats
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://saulalis.github.io/archives/">
+                    <span>
+                        Archives
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://saulalis.github.io/categories/">
+                    <span>
+                        Categories
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://saulalis.github.io/tags/">
+                    <span>
+                        Tags
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">
+      Generating docs from golang source
+    </h1>
+    <div class="post-meta">
+      <time>October 15, 2020</time>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;Saulius Alisauskas
+    </div>
+  </header>
+  <div class="post-content"><h1 id="generating-docs-from-golang-source">Generating docs from golang source</h1>
+<blockquote>
+<p>Code examples are written in a way to be as short as possible which mean they do not do proper error handling and missuse <code>panic</code> to keep it short.</p>
+</blockquote>
+<p>It is very easy to extract comments from go source code to convert them to a different format. 3 special packages are required for this: <code>go/ast</code> and <code>go/parset</code> and <code>go/token</code></p>
+<p><code>parser.Parsfile</code> returns <code>*ast.File</code> which gives as access programatic access to various source file parts like comments, functions and fields.</p>
+<h1 id="simple-example">Simple example</h1>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;go/ast&#34;</span>
+	<span style="color:#e6db74">&#34;go/parser&#34;</span>
+	<span style="color:#e6db74">&#34;go/token&#34;</span>
+)
+
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">fset</span> = <span style="color:#a6e22e">token</span>.<span style="color:#a6e22e">NewFileSet</span>()
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">sourceFile</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ast</span>.<span style="color:#a6e22e">File</span>
+<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">filePath</span> = <span style="color:#e6db74">&#34;PATH_TO_YOUR_GOLANG_SOURCE_FILE&#34;</span>
+<span style="color:#a6e22e">sourceFile</span> = <span style="color:#a6e22e">parser</span>.<span style="color:#a6e22e">ParseFile</span>(<span style="color:#a6e22e">fset</span>, <span style="color:#a6e22e">filePath</span>, <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">parser</span>.<span style="color:#a6e22e">ParseComments</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</code></pre></div><p>Now, to we can loop through declarations, check if declaration is a function and print it&rsquo;s comments</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">cg</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">sourceFile</span>.<span style="color:#a6e22e">Decls</span> {
+	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">function</span>, <span style="color:#a6e22e">isFunction</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">cg</span>.(<span style="color:#f92672">*</span><span style="color:#a6e22e">ast</span>.<span style="color:#a6e22e">FuncDecl</span>); <span style="color:#a6e22e">isFunction</span> {
+		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#a6e22e">function</span>.<span style="color:#a6e22e">Doc</span>.<span style="color:#a6e22e">Text</span>())
+	}	
+}
+</code></pre></div><h1 id="practical-example">Practical example</h1>
+<p>Now, most likely just printing is not enough so here so here is a more real life example which:</p>
+<ul>
+<li>filters functions: they must start with prefix <code>Action</code></li>
+<li>extracts action name using regexp <code>^Action(.*) - </code></li>
+<li>transforms comment text - removes function name from it</li>
+<li>writes header and transformed content to a file</li>
+</ul>
+<p>Golang source file as input:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#75715e">// ActionFly - makes it fly
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">ActionFly</span>() {}
+
+<span style="color:#75715e">// ActuinSwim - makes it swim
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">ActionSwim</span>() {}
+</code></pre></div><p>Doc generation output:</p>
+<pre><code># Fly
+Makes it fly
+
+# Swim
+Makes it swim
+</code></pre><p>Code:</p>
+<pre><code>outputFile := os.Create(...
+headerRegexp := regexp.MustCompile(`^Action(.*) - `)
+for _, cg := range sourceFile.Decls {
+	// Make sure it is a function
+	function, isFunction := cg.(*ast.FuncDecl)
+	if !isFunction || !strings.HasPrefix(function.Name.Name, &quot;Action&quot;) {
+		continue
+	}
+	// Apply regexp to extract action name
+	match := headerRegexp.FindStringSubmatch(function.Doc.Text())
+	if len(match) &lt; 2 {
+		panic(&quot;Looks like comment has a bad format&quot;, function.Name.Name)
+	}
+	
+	// Extract our header and transform comment
+	header := match[1]
+	text := strings.ReplaceAll(function.Doc.Text(), &quot;header - , &quot;&quot;) + &quot;\n\n&quot;
+	
+	// Write to fie
+	io.WriteString(outputFile, fmt.Sprintf(&quot;%s\n%s&quot;, header, text))
+}
+</code></pre></div>
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://saulalis.github.io/tags/golang">golang</a></li>
+    </ul>
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://saulalis.github.io">Saul&#39;s Blog</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo️️</a>️</span>
+    <span>&middot;</span>
+    <span>Theme️ <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top">
+    <button class="top-link" id="top-link" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6">
+            <path d="M12 6H0l6-6z" /></svg>
+    </button>
+</a>
+<script src="https://saulalis.github.io/assets/js/highlight.min.e7afc2928c0925d65c4732dfebe147014d91299a98e819e4b42f25c4fa68e91c.js" integrity="sha256-56/CkowJJdZcRzLf6&#43;FHAU2RKZqY6BnktC8lxPpo6Rw="></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            document.querySelector(this.getAttribute("href")).scrollIntoView({
+                behavior: "smooth"
+            });
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+</script>
+</body>
+
+</html>

@@ -1,57 +1,72 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on Saulius Blog</title>
-    <link>https://noiseoverip.github.io/tags/</link>
-    <description>Recent content in Tags on Saulius Blog</description>
+    <title>Tags on Saul&#39;s Blog</title>
+    <link>https://saulalis.github.io/tags/</link>
+    <description>Recent content in Tags on Saul&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+    <lastBuildDate>Thu, 15 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://saulalis.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ansible</title>
+      <link>https://saulalis.github.io/tags/ansible/</link>
+      <pubDate>Thu, 15 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://saulalis.github.io/tags/ansible/</guid>
+      <description></description>
+    </item>
     
-	<atom:link href="https://noiseoverip.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
-    
+    <item>
+      <title>golang</title>
+      <link>https://saulalis.github.io/tags/golang/</link>
+      <pubDate>Thu, 15 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://saulalis.github.io/tags/golang/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>dns</title>
-      <link>https://noiseoverip.github.io/tags/dns/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <link>https://saulalis.github.io/tags/dns/</link>
+      <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://noiseoverip.github.io/tags/dns/</guid>
+      <guid>https://saulalis.github.io/tags/dns/</guid>
       <description></description>
     </item>
     
     <item>
       <title>docker</title>
-      <link>https://noiseoverip.github.io/tags/docker/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <link>https://saulalis.github.io/tags/docker/</link>
+      <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://noiseoverip.github.io/tags/docker/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>python</title>
-      <link>https://noiseoverip.github.io/tags/python/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://noiseoverip.github.io/tags/python/</guid>
+      <guid>https://saulalis.github.io/tags/docker/</guid>
       <description></description>
     </item>
     
     <item>
       <title>systemd</title>
-      <link>https://noiseoverip.github.io/tags/systemd/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <link>https://saulalis.github.io/tags/systemd/</link>
+      <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://noiseoverip.github.io/tags/systemd/</guid>
+      <guid>https://saulalis.github.io/tags/systemd/</guid>
       <description></description>
     </item>
     
     <item>
       <title>ubuntu</title>
-      <link>https://noiseoverip.github.io/tags/ubuntu/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <link>https://saulalis.github.io/tags/ubuntu/</link>
+      <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://noiseoverip.github.io/tags/ubuntu/</guid>
+      <guid>https://saulalis.github.io/tags/ubuntu/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>python</title>
+      <link>https://saulalis.github.io/tags/python/</link>
+      <pubDate>Fri, 16 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://saulalis.github.io/tags/python/</guid>
       <description></description>
     </item>
     

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<title>Run on first boot after OS install - Saul&#39;s Blog</title>
+
+<meta name="keywords" content="systemd, ubuntu" />
+<meta name="description" content="Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&hellip;
+This can be done creating a systemd service with a marker that will be guaranteed to be run only once.
+Systemd service Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test.">
+<meta name="author" content="Saulius Alisauskas">
+<link rel="canonical" href="https://saulalis.github.io/blog/os_provisioning_onfirstboot/" />
+<link href="https://saulalis.github.io/assets/css/stylesheet.min.c91c3ed78ea855658ac993096d76c123286df5a7d191c2ed38d133cf22dc97de.css" integrity="sha256-yRw&#43;146oVWWKyZMJbXbBIyht9afRkcLtONEzzyLcl94=" rel="preload stylesheet"
+    as="style">
+<link rel="apple-touch-icon" href="https://saulalis.github.io/apple-touch-icon.png">
+<link rel="icon" href="https://saulalis.github.io/favicon.ico">
+<meta name="generator" content="Hugo 0.76.5" />
+<meta property="og:title" content="Run on first boot after OS install" />
+<meta property="og:description" content="Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&hellip;
+This can be done creating a systemd service with a marker that will be guaranteed to be run only once.
+Systemd service Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://saulalis.github.io/blog/os_provisioning_onfirstboot/" />
+<meta property="article:published_time" content="2019-04-17T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-04-17T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Run on first boot after OS install"/>
+<meta name="twitter:description" content="Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&hellip;
+This can be done creating a systemd service with a marker that will be guaranteed to be run only once.
+Systemd service Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Run on first boot after OS install",
+  "name": "Run on first boot after OS install",
+  "description": "Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in …",
+  "keywords": [
+    "systemd", "ubuntu"
+  ],
+  "articleBody": "Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer…\nThis can be done creating a systemd service with a marker that will be guaranteed to be run only once.\nSystemd service Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test.executed file will be present)\n[Unit] StartLimitInterval=200 # Will retry only within 200 seconds window StartLimitBurst=5 # Retry maximum 5 times After=network-online.target # Only after networking stack has started Wants=network-online.target # Not sure why/if this one is needed ConditionPathExists=!/opt/test.executed # Run only if given path doesn't exist [Service] ExecStart=/opt/doSomeStuff.sh # Script to be executed ExecStartPost=/bin/touch /opt/test.executed # Create a marker file after succesful execution Restart=on-failure # Restart only if it fails RestartSec=5 # Restart after 5 second delay Register systemd service in pre-seed Now we need to put it into preseed. The way I will show is kind of ugly (not sure if there is a nice way to express this better). Below config will create service file and enable it.\nd-i preseed/late_command string \\ /bin/echo \"[Unit]\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"StartLimitInterval=200\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"StartLimitBurst=5\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"After=network-online.target\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"Wants=network-online.target\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"ConditionPathExists=!/opt/test.executed\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"[Service]\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"ExecStart=/opt/doSomeStuff.sh\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"ExecStartPost=/bin/touch /opt/test.executed\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"Restart=on-failure\"  /target/etc/systemd/system/myservice.service; \\ /bin/echo \"RestartSec=5\"  /target/etc/systemd/system/myservice.service; \\ in-target systemctl enable myservice.service An alternative way would be to pull the file from web server or configure your OS provisioning tool to place the file. TODO: how to pull from web server ? TODO: how to configure foreman ? TODO: how to configure digital rebar ?\n",
+  "wordCount" : "333",
+  "inLanguage": "en",
+  
+  "datePublished": "2019-04-17T00:00:00Z",
+  "dateModified": "2019-04-17T00:00:00Z",
+  "author": {
+    "@type": "Person",
+    "name": "Saulius Alisauskas"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://saulalis.github.io/blog/os_provisioning_onfirstboot/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Saul's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://saulalis.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="single" id="top">
+<script>
+    
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark');
+        }
+    }
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <p class="logo">
+            <a href="https://saulalis.github.io">Saul&#39;s Blog</a>
+            <span class="theme-toggle">
+                <a id="theme-toggle">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+            </span>
+        </p>
+        <ul class="menu" id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="https://saulalis.github.io/cheats/">
+                    <span>
+                        Cheats
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://saulalis.github.io/archives/">
+                    <span>
+                        Archives
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://saulalis.github.io/categories/">
+                    <span>
+                        Categories
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://saulalis.github.io/tags/">
+                    <span>
+                        Tags
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">
+      Run on first boot after OS install
+    </h1>
+    <div class="post-meta">
+      <time>April 17, 2019</time>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;Saulius Alisauskas
+    </div>
+  </header>
+  <div class="post-content"><p>Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&hellip;</p>
+<p>This can be done creating a systemd service with a marker that will be guaranteed to be run only once.</p>
+<h1 id="systemd-service">Systemd service</h1>
+<p>Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test.executed file will be present)</p>
+<pre><code>[Unit]
+StartLimitInterval=200                        # Will retry only within 200 seconds window
+StartLimitBurst=5                             # Retry maximum 5 times
+After=network-online.target                   # Only after networking stack has started
+Wants=network-online.target                   # Not sure why/if this one is needed
+ConditionPathExists=!/opt/test.executed       # Run only if given path doesn't exist
+
+[Service]
+ExecStart=/opt/doSomeStuff.sh                 # Script to be executed
+ExecStartPost=/bin/touch /opt/test.executed   # Create a marker file after succesful execution
+Restart=on-failure                            # Restart only if it fails
+RestartSec=5                                  # Restart after 5 second delay
+</code></pre><h1 id="register-systemd-service-in-pre-seed">Register systemd service in pre-seed</h1>
+<p>Now we need to put it into preseed. The way I will show is kind of ugly (not sure if there is a nice way to express this better). Below config will create service file and enable it.</p>
+<pre><code>d-i preseed/late_command string \
+  /bin/echo &quot;[Unit]&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;StartLimitInterval=200&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;StartLimitBurst=5&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;After=network-online.target&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;Wants=network-online.target&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;ConditionPathExists=!/opt/test.executed&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;[Service]&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;ExecStart=/opt/doSomeStuff.sh&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;ExecStartPost=/bin/touch /opt/test.executed&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;Restart=on-failure&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  /bin/echo &quot;RestartSec=5&quot; &gt; /target/etc/systemd/system/myservice.service; \
+  in-target systemctl enable myservice.service
+</code></pre><p>An alternative way would be to pull the file from web server or configure your OS provisioning tool to place the file.
+TODO: how to pull from web server ?
+TODO: how to configure foreman ?
+TODO: how to configure digital rebar ?</p>
+</div>
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://saulalis.github.io/tags/systemd">systemd</a></li>
+      <li><a href="https://saulalis.github.io/tags/ubuntu">ubuntu</a></li>
+    </ul>
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://saulalis.github.io">Saul&#39;s Blog</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo️️</a>️</span>
+    <span>&middot;</span>
+    <span>Theme️ <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top">
+    <button class="top-link" id="top-link" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6">
+            <path d="M12 6H0l6-6z" /></svg>
+    </button>
+</a>
+<script src="https://saulalis.github.io/assets/js/highlight.min.e7afc2928c0925d65c4732dfebe147014d91299a98e819e4b42f25c4fa68e91c.js" integrity="sha256-56/CkowJJdZcRzLf6&#43;FHAU2RKZqY6BnktC8lxPpo6Rw="></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            document.querySelector(this.getAttribute("href")).scrollIntoView({
+                behavior: "smooth"
+            });
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+</script>
+</body>
+
+</html>

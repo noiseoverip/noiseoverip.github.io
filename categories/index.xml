@@ -1,30 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on Saulius Blog</title>
-    <link>https://noiseoverip.github.io/categories/</link>
-    <description>Recent content in Categories on Saulius Blog</description>
+    <title>Categories on Saul&#39;s Blog</title>
+    <link>https://saulalis.github.io/categories/</link>
+    <description>Recent content in Categories on Saul&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    
-	<atom:link href="https://noiseoverip.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Thu, 15 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://saulalis.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>guides</title>
-      <link>https://noiseoverip.github.io/categories/guides/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <link>https://saulalis.github.io/categories/guides/</link>
+      <pubDate>Thu, 15 Oct 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://noiseoverip.github.io/categories/guides/</guid>
+      <guid>https://saulalis.github.io/categories/guides/</guid>
       <description></description>
     </item>
     
     <item>
       <title>projects</title>
-      <link>https://noiseoverip.github.io/categories/projects/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <link>https://saulalis.github.io/categories/projects/</link>
+      <pubDate>Fri, 16 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://noiseoverip.github.io/categories/projects/</guid>
+      <guid>https://saulalis.github.io/categories/projects/</guid>
       <description></description>
     </item>
     

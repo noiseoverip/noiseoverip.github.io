@@ -1,21 +1,18 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>python on Saulius Blog</title>
-    <link>https://noiseoverip.github.io/tags/python/</link>
-    <description>Recent content in python on Saulius Blog</description>
+    <title>python on Saul&#39;s Blog</title>
+    <link>https://saulalis.github.io/tags/python/</link>
+    <description>Recent content in python on Saul&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    
-	<atom:link href="https://noiseoverip.github.io/tags/python/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Fri, 16 Nov 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://saulalis.github.io/tags/python/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Safe python execution via Docker and Django Web UI</title>
-      <link>https://noiseoverip.github.io/post/safe-python-on-docker/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <link>https://saulalis.github.io/blog/safe-python-on-docker/</link>
+      <pubDate>Fri, 16 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://noiseoverip.github.io/post/safe-python-on-docker/</guid>
+      <guid>https://saulalis.github.io/blog/safe-python-on-docker/</guid>
       <description>So I decided to explore the idea of running python code in docker. Always wanted to try Django web framework so this was my chance J.
 What I ended up doing is tiny Web page where you can enter python code which gets executed inside docker container and resulting python console output displayed to user. Sure this is just a proof of concept, but something close to this could be used to safely execute custom code provided by client in some real product.</description>
     </item>
