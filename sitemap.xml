@@ -3,102 +3,112 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https:///noiseoverip.github.io/cheats/</loc>
+    <loc>https://noiseoverip.github.io/blog/</loc>
+    <lastmod>2021-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/blog/golang_web/</loc>
+    <lastmod>2021-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/categories/</loc>
+    <lastmod>2021-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/tags/golang/</loc>
+    <lastmod>2021-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/categories/guides/</loc>
+    <lastmod>2021-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/</loc>
+    <lastmod>2021-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/tags/</loc>
+    <lastmod>2021-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/tags/web/</loc>
+    <lastmod>2021-01-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://noiseoverip.github.io/cheats/</loc>
     <lastmod>2021-01-02T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/tags/ansible/</loc>
+    <loc>https://noiseoverip.github.io/tags/ansible/</loc>
     <lastmod>2020-10-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/blog/</loc>
+    <loc>https://noiseoverip.github.io/blog/golang_doc_generation/</loc>
     <lastmod>2020-10-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/categories/</loc>
+    <loc>https://noiseoverip.github.io/blog/ansible_action_plugins/</loc>
     <lastmod>2020-10-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/blog/golang_doc_generation/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https:///noiseoverip.github.io/tags/golang/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https:///noiseoverip.github.io/categories/guides/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https:///noiseoverip.github.io/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https:///noiseoverip.github.io/tags/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https:///noiseoverip.github.io/blog/ansible_action_plugins/</loc>
-    <lastmod>2020-10-15T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https:///noiseoverip.github.io/tags/dns/</loc>
+    <loc>https://noiseoverip.github.io/tags/dns/</loc>
     <lastmod>2019-04-17T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/tags/docker/</loc>
+    <loc>https://noiseoverip.github.io/tags/docker/</loc>
     <lastmod>2019-04-17T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/blog/os_provisioning_onfirstboot/</loc>
+    <loc>https://noiseoverip.github.io/blog/os_provisioning_onfirstboot/</loc>
     <lastmod>2019-04-17T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/blog/coredns_on_ubuntu18/</loc>
+    <loc>https://noiseoverip.github.io/blog/coredns_on_ubuntu18/</loc>
     <lastmod>2019-04-17T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/tags/systemd/</loc>
+    <loc>https://noiseoverip.github.io/tags/systemd/</loc>
     <lastmod>2019-04-17T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/tags/ubuntu/</loc>
+    <loc>https://noiseoverip.github.io/tags/ubuntu/</loc>
     <lastmod>2019-04-17T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/categories/projects/</loc>
+    <loc>https://noiseoverip.github.io/categories/projects/</loc>
     <lastmod>2018-11-16T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/tags/python/</loc>
+    <loc>https://noiseoverip.github.io/tags/python/</loc>
     <lastmod>2018-11-16T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/blog/safe-python-on-docker/</loc>
+    <loc>https://noiseoverip.github.io/blog/safe-python-on-docker/</loc>
     <lastmod>2018-11-16T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https:///noiseoverip.github.io/archives/</loc>
+    <loc>https://noiseoverip.github.io/archives/</loc>
   </url>
   
 </urlset>

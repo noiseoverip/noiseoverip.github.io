@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>web on Saul&#39;s Blog</title>
+    <link>https://noiseoverip.github.io/tags/web/</link>
+    <description>Recent content in web on Saul&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 03 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://noiseoverip.github.io/tags/web/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Build web service in Go with Gin-Gonic</title>
+      <link>https://noiseoverip.github.io/blog/golang_web/</link>
+      <pubDate>Sun, 03 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://noiseoverip.github.io/blog/golang_web/</guid>
+      <description>IN PROGRESS
+Intro This blog post talks about tools and techniques i use for build web services in GO. In order to relate this it some real context, lets pretend we are building a service which people can use as inventory for their howsehold (or any other) things. They will be able to store/retrieve inventory. Each inventory item will have a description, tags, key/val properties. I will start with basic and then move on to add more complex things like authentication, database and so on&amp;hellip;</description>
+    </item>
+    
+  </channel>
+</rss>

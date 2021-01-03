@@ -2,17 +2,27 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Saul&#39;s Blog</title>
-    <link>https:///noiseoverip.github.io/</link>
+    <link>https://noiseoverip.github.io/</link>
     <description>Recent content on Saul&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 15 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="https:///noiseoverip.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 03 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://noiseoverip.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Build web service in Go with Gin-Gonic</title>
+      <link>https://noiseoverip.github.io/blog/golang_web/</link>
+      <pubDate>Sun, 03 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://noiseoverip.github.io/blog/golang_web/</guid>
+      <description>IN PROGRESS
+Intro This blog post talks about tools and techniques i use for build web services in GO. In order to relate this it some real context, lets pretend we are building a service which people can use as inventory for their howsehold (or any other) things. They will be able to store/retrieve inventory. Each inventory item will have a description, tags, key/val properties. I will start with basic and then move on to add more complex things like authentication, database and so on&amp;hellip;</description>
+    </item>
+    
     <item>
       <title>Cheats</title>
-      <link>https:///noiseoverip.github.io/cheats/</link>
+      <link>https://noiseoverip.github.io/cheats/</link>
       <pubDate>Sat, 02 Jan 2021 00:00:00 +0000</pubDate>
       
-      <guid>https:///noiseoverip.github.io/cheats/</guid>
+      <guid>https://noiseoverip.github.io/cheats/</guid>
       <description>&amp;hellip;stuff I usually forget yet need often
 Unix job control https://www.thegeekdiary.com/understanding-the-job-control-commands-in-linux-bg-fg-and-ctrlz/
  $binary &amp;amp; send binary to background (create a job) jobs list jobs fg % $job_num bring job to foreground bg % $job_num send job to backgrouns CTRL+Z - stop job and send it to background  Tar archive  tar -czvf foo.tar dir Create archive (c)create,(z)compress,(v)verbose progress, (f)output file name tar -xvf foo.tar Extract archive Add -C to change working dir  Libvirt virsh virsh domifaddr $DOMAIN_NAME # returns IP address information virsh console $DOMAIN_NAME` # login via console, exist wtih CTRL+SHIFT+] Process grep (pgrep) pgrep -f firefox # -f makes it match against whole command line not just the name Git Determine branch/tag target Best way to do this is git rev-list -n 1 as it works for branches and both types of tags (annotated and lightweight) the same way</description>
@@ -20,10 +30,10 @@ Unix job control https://www.thegeekdiary.com/understanding-the-job-control-comm
     
     <item>
       <title>Generating docs from golang source</title>
-      <link>https:///noiseoverip.github.io/blog/golang_doc_generation/</link>
+      <link>https://noiseoverip.github.io/blog/golang_doc_generation/</link>
       <pubDate>Thu, 15 Oct 2020 00:00:00 +0000</pubDate>
       
-      <guid>https:///noiseoverip.github.io/blog/golang_doc_generation/</guid>
+      <guid>https://noiseoverip.github.io/blog/golang_doc_generation/</guid>
       <description>Generating docs from golang source  Code examples are written in a way to be as short as possible which mean they do not do proper error handling and missuse panic to keep it short.
  It is very easy to extract comments from go source code to convert them to a different format. 3 special packages are required for this: go/ast and go/parset and go/token
 parser.Parsfile returns *ast.File which gives as access programatic access to various source file parts like comments, functions and fields.</description>
@@ -31,20 +41,20 @@ parser.Parsfile returns *ast.File which gives as access programatic access to va
     
     <item>
       <title>Writing Ansible Action plugin</title>
-      <link>https:///noiseoverip.github.io/blog/ansible_action_plugins/</link>
+      <link>https://noiseoverip.github.io/blog/ansible_action_plugins/</link>
       <pubDate>Thu, 15 Oct 2020 00:00:00 +0000</pubDate>
       
-      <guid>https:///noiseoverip.github.io/blog/ansible_action_plugins/</guid>
+      <guid>https://noiseoverip.github.io/blog/ansible_action_plugins/</guid>
       <description>Ansible action plugin Some facts:
  Action plugins run on control host with ansible process and not on target hosts. Modules are executed on target hosts. Action plugins can call other plugins or modules. Sometimes there is an action plugins and a module with the same name in order to run part of it on executing host and part on target host.  Hello world Let&amp;rsquo;s get to code. We can create a file sample_action.</description>
     </item>
     
     <item>
       <title>Run on first boot after OS install</title>
-      <link>https:///noiseoverip.github.io/blog/os_provisioning_onfirstboot/</link>
+      <link>https://noiseoverip.github.io/blog/os_provisioning_onfirstboot/</link>
       <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https:///noiseoverip.github.io/blog/os_provisioning_onfirstboot/</guid>
+      <guid>https://noiseoverip.github.io/blog/os_provisioning_onfirstboot/</guid>
       <description>Sometimes one might need to do something after OS (Ubuntu in this example) has been installed and booted for the first time. Reason might be that something cannot be done while in Ubuntu installer&amp;hellip;
 This can be done creating a systemd service with a marker that will be guaranteed to be run only once.
 Systemd service Below is an example of systemd service which will be guaranteed to execute during next during next boot, it will retry it self if failed in a 200 seconds window maximum of 5 times with 5 seconds delay and will not execute anymore during subsequent reboots (as long as /opt/test.</description>
@@ -52,29 +62,29 @@ Systemd service Below is an example of systemd service which will be guaranteed 
     
     <item>
       <title>Running CoreDNS on Ubuntu 18.04</title>
-      <link>https:///noiseoverip.github.io/blog/coredns_on_ubuntu18/</link>
+      <link>https://noiseoverip.github.io/blog/coredns_on_ubuntu18/</link>
       <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https:///noiseoverip.github.io/blog/coredns_on_ubuntu18/</guid>
+      <guid>https://noiseoverip.github.io/blog/coredns_on_ubuntu18/</guid>
       <description>Systemd runs a local DNS stub resolver on 127.0.0.53:53. It acts as a proxy and forwards all DNS queries to Google or Cloudflare DNS servers (1.1.1.1, 8.8.8.8, 1.0.0.1, 8.8.4.4) by default. All local DNS queries get resolved through it default resolver configuration in /etc/resolv.conf points to it (nameserver 127.0.0.53). This file is actually a symbolic link to /var/run/systemd/resolve/stub-resolv.conf which is a dynamic resolver (routines in C library) configuration managed by systemd-resolved</description>
     </item>
     
     <item>
       <title>Safe python execution via Docker and Django Web UI</title>
-      <link>https:///noiseoverip.github.io/blog/safe-python-on-docker/</link>
+      <link>https://noiseoverip.github.io/blog/safe-python-on-docker/</link>
       <pubDate>Fri, 16 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https:///noiseoverip.github.io/blog/safe-python-on-docker/</guid>
+      <guid>https://noiseoverip.github.io/blog/safe-python-on-docker/</guid>
       <description>So I decided to explore the idea of running python code in docker. Always wanted to try Django web framework so this was my chance J.
 What I ended up doing is tiny Web page where you can enter python code which gets executed inside docker container and resulting python console output displayed to user. Sure this is just a proof of concept, but something close to this could be used to safely execute custom code provided by client in some real product.</description>
     </item>
     
     <item>
       <title>Archive</title>
-      <link>https:///noiseoverip.github.io/archives/</link>
+      <link>https://noiseoverip.github.io/archives/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https:///noiseoverip.github.io/archives/</guid>
+      <guid>https://noiseoverip.github.io/archives/</guid>
       <description>archives</description>
     </item>
     
