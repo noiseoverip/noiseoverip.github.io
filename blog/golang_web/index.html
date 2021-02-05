@@ -39,8 +39,8 @@ Intro This blog post talks about tools and techniques i use for build web servic
   "keywords": [
     "golang", "web"
   ],
-  "articleBody": "IN PROGRESS\nIntro This blog post talks about tools and techniques i use for build web services in GO. In order to relate this it some real context, lets pretend we are building a service which people can use as inventory for their howsehold (or any other) things. They will be able to store/retrieve inventory. Each inventory item will have a description, tags, key/val properties. I will start with basic and then move on to add more complex things like authentication, database and so on…\nSource code: https://github.com/noiseoverip/goweb-gingonic\nTools:\n gingonic - a nice small web servce framework which makes it a little nicer to build things in stead of using raw golang sdk.  Directory layout cmd/goweb/main.go # Initialize all dependencies and call http.ListenAndServe() internal/server.go # define all routes internal/server_test.go internal/handle_inventory internal/handler_iventory_item Server struct I like the approach layed out by Mat Ryan in https://www.youtube.com/watch?v=rWBSMsLG8po where we create a high level struct which implement http.Handler interface so we can pass it to http.ListenAndServe. Each handler function is a method on a server this way we can easily grab required dependencies.\ninternal/server.go\npackage internal type Server struct { router *gin.Engine // Here will will later add additional dependencies like database clients  ... } func NewServer() *Server { s := \u0026Server{} s.routes() return s } func (s *Server) routes() { s.router := gin.Default() s.router.GET(\"/\", s.handleHello()) } // Since this is just for show, keeping this handler in this file... func (s *Server) handleHello() gin.HandlerFunc { return func(c *gin.Context) { c.Status(200) } } Given this, we can write our main functions as: cmd/goweb/main.go\nfunc main() { flag.Parse() addr := \"127.0.0.1:8080\" // default address to bind to  if len(flag.Args())  0 { addr = flag.Arg(0) } s := internal.NewServer() err := http.ListenAndServe(addr, s) if err != nil { fmt.Printf(\"server failed %v\", err) os.Exit(1) } } To test what we have at this point we could write something like this: internal/server_test.go\nfunc Test(t *testing.T) { server := NewServer() server.routes() req, err := http.NewRequest(\"GET\", \"/test\", nil) w := httptest.NewRecorder() server.ServeHTTP(w, req) if err != nil { t.FailNow() } got := w.Code want := 200 if got != want { t.Fatalf(\"GET /test expected result code 200\") } } ",
-  "wordCount" : "360",
+  "articleBody": "IN PROGRESS\nIntro This blog post talks about tools and techniques i use for build web services in GO. In order to relate this it some real context, lets pretend we are building a service which people can use as inventory for their howsehold (or any other) things. They will be able to store/retrieve inventory. Each inventory item will have a description, tags, key/val properties. I will start with basic and then move on to add more complex things like authentication, database and so on…\nSource code: https://github.com/noiseoverip/goweb-gingonic\nTools:\n gingonic - a nice small web service framework which makes it a little nicer to build things instead of using raw golang sdk.  Directory layout cmd/goweb/main.go # Initialize all dependencies and call http.ListenAndServe() internal/server.go # define all routes internal/server_test.go internal/handle_inventory internal/handler_iventory_item Server struct I like the approach described by Mat Ryan in https://www.youtube.com/watch?v=rWBSMsLG8po where we create a high level struct which implement http.Handler interface so we can pass it to http.ListenAndServe. Each handler function is a method on a server this way we can easily grab required dependencies.\ninternal/server.go\npackage internal type Server struct { router *gin.Engine // Here will will later add additional dependencies like database clients  ... } func NewServer() *Server { s := \u0026Server{} s.routes() return s } func (s *Server) routes() { s.router := gin.Default() s.router.GET(\"/\", s.handleHello()) } // Since this is just for show, keeping this handler in this file... func (s *Server) handleHello() gin.HandlerFunc { return func(c *gin.Context) { c.Status(200) } } Given this, we can write our main functions as: cmd/goweb/main.go\npackage main import ( \"flag\" \"fmt\" \"os\" ) func main() { flag.Parse() addr := \"127.0.0.1:8080\" // default address to bind to  if len(flag.Args())  0 { addr = flag.Arg(0) } s := internal.NewServer() err := http.ListenAndServe(addr, s) if err != nil { fmt.Printf(\"server failed %v\", err) os.Exit(1) } } To test what we have at this point we could write something like this: internal/server_test.go\nfunc Test(t *testing.T) { server := NewServer() server.routes() req, err := http.NewRequest(\"GET\", \"/test\", nil) w := httptest.NewRecorder() server.ServeHTTP(w, req) if err != nil { t.FailNow() } got := w.Code want := 200 if got != want { t.Fatalf(\"GET /test expected result code 200\") } } Database Golang has a simple low level database abstraction which automatically handles connection pools. Below is a simple example of inserting records into mysql database. It demonstrates how to handle time, null values and connection pools.\nThis is the lowes level database handling which will require fair amount of typing however will provide greates level of control. There are libraries helping to decrease amount of typing which I hope to explore some time in the future.\nimport ( \"database/sql\" _ \"github.com/go-sql-driver/mysql\" ) ... // Open connection to database. // - ?parseTime=true turns parsing MYSQL's DATE and DATETIME values into time.Time in stead of []byte // https://github.com/go-sql-driver/mysql#timetime-support // db, _ = sql.Open(\"mysql\", \"user:password@tcp(host)/databaseName?parseTime=true\") # db.SetMaxOpenConns() sets maximum number of open sonnections. Defaults to unlimited. result, _db.Exec(\"INSERT into items(name, description) VALUES (?,?)\", \"foo\", \"bar\") id, _ := result.LastInsertId() rows, _ := m.DB.Query(\"select \" + \"item.id, \" + \"item.name, \" + \"item.description, \" + \"item.created, \" + \"item.updated \" + \"from items as item\") defer m.Close(rows) for rows.Next() { item := \u0026Item{} // Since description is optional, it might be NULL in database and it would fail scan method in such case  // using sql.NullString we can hold NULL and later check if it had a value or not  var description sql.NullString err := rows.Scan(\u0026item.ID, \u0026item.Name, \u0026description, \u0026item.Created, \u0026item.Updated) if err != nil { return nil, err } if description.Valid { item.Description = description.String } items = append(items, item) } ",
+  "wordCount" : "603",
   "inLanguage": "en",
   
   "datePublished": "2021-01-03T00:00:00Z",
@@ -157,7 +157,7 @@ Intro This blog post talks about tools and techniques i use for build web servic
       Build web service with Go and Gin-Gonic
     </h1>
     <div class="post-meta">
-      <time>January 3, 2021</time>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;Saulius Alisauskas
+      <time>January 3, 2021</time>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Saulius Alisauskas
     </div>
   </header>
   <div class="post-content"><p><em><strong>IN PROGRESS</strong></em></p>
@@ -168,7 +168,7 @@ Intro This blog post talks about tools and techniques i use for build web servic
 <p>Source code: <a href="https://github.com/noiseoverip/goweb-gingonic">https://github.com/noiseoverip/goweb-gingonic</a></p>
 <p>Tools:</p>
 <ul>
-<li>gingonic - a nice small web servce framework which makes it a little nicer to build things in stead of using raw golang sdk.</li>
+<li>gingonic - a nice small web service framework which makes it a little nicer to build things instead of using raw golang sdk.</li>
 </ul>
 <h1 id="directory-layout">Directory layout</h1>
 <pre><code>cmd/goweb/main.go # Initialize all dependencies and call http.ListenAndServe()
@@ -177,7 +177,7 @@ internal/server_test.go
 internal/handle_inventory
 internal/handler_iventory_item
 </code></pre><h1 id="server-struct">Server struct</h1>
-<p>I like the approach layed out by Mat Ryan in <a href="https://www.youtube.com/watch?v=rWBSMsLG8po">https://www.youtube.com/watch?v=rWBSMsLG8po</a> where we create a high level <code>struct</code> which implement <code>http.Handler</code> interface so we can pass it to <code>http.ListenAndServe</code>. Each handler function is a method on a server this way we can easily grab required dependencies.</p>
+<p>I like the approach described by Mat Ryan in <a href="https://www.youtube.com/watch?v=rWBSMsLG8po">https://www.youtube.com/watch?v=rWBSMsLG8po</a> where we create a high level <code>struct</code> which implement <code>http.Handler</code> interface so we can pass it to <code>http.ListenAndServe</code>. Each handler function is a method on a server this way we can easily grab required dependencies.</p>
 <p>internal/server.go</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">internal</span>
 
@@ -206,7 +206,14 @@ internal/handler_iventory_item
 }
 </code></pre></div><p>Given this, we can write our main functions as:
 cmd/goweb/main.go</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {  
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+<span style="color:#f92672">import</span> (
+	<span style="color:#e6db74">&#34;flag&#34;</span>
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;os&#34;</span>
+)
+
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {  
    <span style="color:#a6e22e">flag</span>.<span style="color:#a6e22e">Parse</span>()  
   
    <span style="color:#a6e22e">addr</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;127.0.0.1:8080&#34;</span> <span style="color:#75715e">// default address to bind to  
@@ -242,6 +249,55 @@ internal/server_test.go</p>
    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">got</span> <span style="color:#f92672">!=</span> <span style="color:#a6e22e">want</span> {  
       <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Fatalf</span>(<span style="color:#e6db74">&#34;GET /test expected result code 200&#34;</span>)  
    }  
+}
+</code></pre></div><h1 id="database">Database</h1>
+<p>Golang has a simple low level database abstraction which automatically handles connection pools. Below is a simple
+example of inserting records into mysql database. It demonstrates how to handle time, null values and connection pools.</p>
+<p>This is the lowes level database handling which will require fair amount of typing however will provide greates level of
+control. There are libraries helping to decrease amount of typing which I hope to explore some time in the future.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;database/sql&#34;</span>
+    <span style="color:#a6e22e">_</span> <span style="color:#e6db74">&#34;github.com/go-sql-driver/mysql&#34;</span>
+)
+
+<span style="color:#f92672">...</span>
+
+<span style="color:#75715e">// Open connection to database.
+</span><span style="color:#75715e">// - ?parseTime=true turns parsing MYSQL&#39;s DATE and DATETIME values into time.Time in stead of []byte
+</span><span style="color:#75715e">//   https://github.com/go-sql-driver/mysql#timetime-support
+</span><span style="color:#75715e">//
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">db</span>, <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">Open</span>(<span style="color:#e6db74">&#34;mysql&#34;</span>, <span style="color:#e6db74">&#34;user:password@tcp(host)/databaseName?parseTime=true&#34;</span>)
+<span style="color:#960050;background-color:#1e0010">#</span> <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">SetMaxOpenConns</span>() <span style="color:#a6e22e">sets</span> <span style="color:#a6e22e">maximum</span> <span style="color:#a6e22e">number</span> <span style="color:#a6e22e">of</span> <span style="color:#a6e22e">open</span> <span style="color:#a6e22e">sonnections</span>. <span style="color:#a6e22e">Defaults</span> <span style="color:#a6e22e">to</span> <span style="color:#a6e22e">unlimited</span>.
+
+<span style="color:#a6e22e">result</span>, <span style="color:#a6e22e">_db</span>.<span style="color:#a6e22e">Exec</span>(<span style="color:#e6db74">&#34;INSERT into items(name, description) VALUES (?,?)&#34;</span>, <span style="color:#e6db74">&#34;foo&#34;</span>, <span style="color:#e6db74">&#34;bar&#34;</span>)
+<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">result</span>.<span style="color:#a6e22e">LastInsertId</span>()
+
+<span style="color:#a6e22e">rows</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">DB</span>.<span style="color:#a6e22e">Query</span>(<span style="color:#e6db74">&#34;select &#34;</span> <span style="color:#f92672">+</span>
+		<span style="color:#e6db74">&#34;item.id, &#34;</span> <span style="color:#f92672">+</span>
+		<span style="color:#e6db74">&#34;item.name, &#34;</span> <span style="color:#f92672">+</span>
+		<span style="color:#e6db74">&#34;item.description, &#34;</span> <span style="color:#f92672">+</span>
+		<span style="color:#e6db74">&#34;item.created, &#34;</span> <span style="color:#f92672">+</span>
+		<span style="color:#e6db74">&#34;item.updated &#34;</span> <span style="color:#f92672">+</span>
+		<span style="color:#e6db74">&#34;from items as item&#34;</span>)
+
+<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Close</span>(<span style="color:#a6e22e">rows</span>)
+<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">rows</span>.<span style="color:#a6e22e">Next</span>() {
+    <span style="color:#a6e22e">item</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Item</span>{}
+
+    <span style="color:#75715e">// Since description is optional, it might be NULL in database and it would fail scan method in such case
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// using sql.NullString we can hold NULL and later check if it had a value or not
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">description</span> <span style="color:#a6e22e">sql</span>.<span style="color:#a6e22e">NullString</span>
+
+    <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">rows</span>.<span style="color:#a6e22e">Scan</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">ID</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">Name</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">description</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">Created</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">Updated</span>)
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">err</span>
+    }
+
+    <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">description</span>.<span style="color:#a6e22e">Valid</span> {
+        <span style="color:#a6e22e">item</span>.<span style="color:#a6e22e">Description</span> = <span style="color:#a6e22e">description</span>.<span style="color:#a6e22e">String</span>
+    }
+
+    <span style="color:#a6e22e">items</span> = append(<span style="color:#a6e22e">items</span>, <span style="color:#a6e22e">item</span>)
 }
 </code></pre></div></div>
   <footer class="post-footer">
