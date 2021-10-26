@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<title>TLS for development or private services - Saul&#39;s Blog</title>
+
+<meta name="keywords" content="tls, web" />
+<meta name="description" content="OpenSSL is tricky Just be your own Root CA Facts and tips Troubleshooting References   Software used:
+ OpenSSL 1.1.1j 16 Feb 2021   OpenSSL is tricky openssl command line utility is the most common way to generate keys and certificates required to setup TLS connections to web servers. It is, however, often very tricky to use. Numerous examples posted are confusing or missing some key peace of information (examples provided here are no exception) leading to frustrations.">
+<meta name="author" content="Saulius Alisauskas">
+<link rel="canonical" href="https://noiseoverip.github.io/blog/tls/" />
+<link href="https://noiseoverip.github.io/assets/css/stylesheet.min.c91c3ed78ea855658ac993096d76c123286df5a7d191c2ed38d133cf22dc97de.css" integrity="sha256-yRw&#43;146oVWWKyZMJbXbBIyht9afRkcLtONEzzyLcl94=" rel="preload stylesheet"
+    as="style">
+<link rel="apple-touch-icon" href="https://noiseoverip.github.io/apple-touch-icon.png">
+<link rel="icon" href="https://noiseoverip.github.io/favicon.ico">
+<meta name="generator" content="Hugo 0.80.0" />
+<meta property="og:title" content="TLS for development or private services" />
+<meta property="og:description" content="OpenSSL is tricky Just be your own Root CA Facts and tips Troubleshooting References   Software used:
+ OpenSSL 1.1.1j 16 Feb 2021   OpenSSL is tricky openssl command line utility is the most common way to generate keys and certificates required to setup TLS connections to web servers. It is, however, often very tricky to use. Numerous examples posted are confusing or missing some key peace of information (examples provided here are no exception) leading to frustrations." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://noiseoverip.github.io/blog/tls/" />
+<meta property="article:published_time" content="2021-10-25T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-10-25T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="TLS for development or private services"/>
+<meta name="twitter:description" content="OpenSSL is tricky Just be your own Root CA Facts and tips Troubleshooting References   Software used:
+ OpenSSL 1.1.1j 16 Feb 2021   OpenSSL is tricky openssl command line utility is the most common way to generate keys and certificates required to setup TLS connections to web servers. It is, however, often very tricky to use. Numerous examples posted are confusing or missing some key peace of information (examples provided here are no exception) leading to frustrations."/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "TLS for development or private services",
+  "name": "TLS for development or private services",
+  "description": "OpenSSL is tricky Just be your own Root CA Facts and tips Troubleshooting References   Software used:\n OpenSSL 1.1.1j 16 Feb 2021   OpenSSL is tricky openssl command line utility …",
+  "keywords": [
+    "tls", "web"
+  ],
+  "articleBody": " OpenSSL is tricky Just be your own Root CA Facts and tips Troubleshooting References   Software used:\n OpenSSL 1.1.1j 16 Feb 2021   OpenSSL is tricky openssl command line utility is the most common way to generate keys and certificates required to setup TLS connections to web servers. It is, however, often very tricky to use. Numerous examples posted are confusing or missing some key peace of information (examples provided here are no exception) leading to frustrations. Even the name it self ‘openssl’ contains ‘ssl’ which is an old name of ‘tls’… More over, even once I figure it out, the next time, it will all be forgotten (happened multiple times). So, here i will attempt to lay things out for my self (and anyone lease reading it) for future reference so that hopefully, i will not need to go and scout the web for same things over again.\nJust be your own Root CA Most of the time it is best to use TLS from the start for any services that are going to be deployed to production eventually. That is because TLS or its absense has implication on service functionality (like handling of http header set-cookie x=y secure). After going through different options, I settled on creating my own root CA, importing it to all of my devices and signing all my other certificates with it. Although this is a little bit more cumbersome initially compared to just using a self-signed certificate, but it is way more easier to manage it down the road (especially if you are going to be creating different certificates). I even use this method for my own personal services to avoid paying for real certificate while still reaping the benefits of secure communication (as long as i do a good job of not exposing my root CA’s private key)\nSo here is how i do it. Create a config file for root CA and call it root_ca.cnf:\n[req] default_bits = 2048 encrypt_key = no default_md = sha256 prompt = no utf8 = yes distinguished_name = req_distinguished_name x509_extensions = v3_ext [req_distinguished_name] C = US ST = NJ L = Metuchen O = MyPersonalRootCA OU = MyPersonalRootCA CN = example.com [v3_ext] basicConstraints = critical, CA:true subjectKeyIdentifier = hash keyUsage = critical, digitalSignature, cRLSign, keyCertSign extendedKeyUsage = clientAuth, serverAuth  Key things in here are:\n basicConstraints = CA:true marks it are CA keyUsage = keyCertSign allows to use generate certificate for signing other certificates   You will most likely only need to edit req_distinguished_name section only. Now we can generate our root certificate authority.\nopenssl req -new -x509 -sha256 -nodes -newkey rsa:2048 -keyout root_ca.key -out root_ca.pem -days 3650 -config root_ca.cnf Generate private key for service certificate:\nopenssl genrsa -out server.key 2048 Create config file for CSR generation:\n[req] distinguished_name = req_distinguished_name prompt = no [req_distinguished_name] C = US ST = NJ L = Metuchen O = MyService OU = MyService1 CN = myservice.example.com  Distinguished name provided here will be “subject” and the one provided for root ca will be “issuer” when viewing certificate chaing information.\n To generate CSR:\nopenssl req -new -key server.key -out server.csr -config server.cnf We need to create extension file where we will be able to specify DNS names and IP addresses that will be valid for this certificate server.v3.ext:\nauthorityKeyIdentifier=keyid,issuer basicConstraints=CA:FALSE keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment subjectAltName = @alt_names [alt_names] DNS.1 = localhost DNS.2 = myservice.example.com Finally now we can generate certificate for our app signed with our root CA:\nopenssl x509 -req -in server.csr -CA root_ca.pem -CAkey root_ca.key -CAcreateserial \\ -out server.crt -days 3650 -sha256 -extfile server.v3.ext  It is a little odd that we cannot set subjectAltName in CSR it self, but this is how it works. Although it is possible to make it copy extensions from CSR but that requires special configuration in root_ca.cnf and is considered and ant-pattern.\n Now lets test it out, here is a minimal golang code to start up a web service secured with our generate certificate:\ngo mod init example/server Create file main.go:\npackage main import ( \"net/http\" ) func main() { http.HandleFunc(\"/\", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte(\"hello\")) }) http.ListenAndServeTLS(\"127.0.0.1:8080\", \"server.crt\", \"server.key\", nil) } Register root CA in your system. For linux:\nsudo cp root_ca.pem /usr/local/share/ca-certificates/myroot.crt sudo update-ca-certificates and run it:\ngo run main.go You should see it return ‘hello’ and no tls errors.\nTLS for your private production services Sometimes, you might have some private web services (like i do) which are accessed only by you. In this case, you are most likely not making money on it and don’t want to pay for certificates but you still want to secure communication and have access from all your devices. One way to set this up is to create your own Root CA and sign with it certificates of individual services, then import that Root CA on all your devices.\nFacts and tips Some security related restrictions are relaxed by web services is accessed via localhost host:\n Set-Cookie header is still when secure attribute is present and request scheme is not https.  Troubleshooting  openssl s_client -showcerts -connect yourservicehost:443 openssl req -in server.csr -noout -text  References https://jamielinux.com/docs/openssl-certificate-authority/index.html https://gist.github.com/fntlnz/cf14feb5a46b2eda428e000157447309\n",
+  "wordCount" : "850",
+  "inLanguage": "en",
+  
+  "datePublished": "2021-10-25T00:00:00Z",
+  "dateModified": "2021-10-25T00:00:00Z",
+  "author": {
+    "@type": "Person",
+    "name": "Saulius Alisauskas"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://noiseoverip.github.io/blog/tls/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Saul's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://noiseoverip.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class="single" id="top">
+<script>
+    
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark');
+        }
+    }
+</script>
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <p class="logo">
+            <a href="https://noiseoverip.github.io">Saul&#39;s Blog</a>
+            <span class="theme-toggle">
+                <a id="theme-toggle">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </a>
+            </span>
+        </p>
+        <ul class="menu" id="menu" onscroll="menu_on_scroll()">
+            <li>
+                <a href="https://noiseoverip.github.io/cheats/">
+                    <span>
+                        Cheats
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://noiseoverip.github.io/archives/">
+                    <span>
+                        Archives
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://noiseoverip.github.io/categories/">
+                    <span>
+                        Categories
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="https://noiseoverip.github.io/tags/">
+                    <span>
+                        Tags
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">
+      TLS for development or private services
+    </h1>
+    <div class="post-meta">
+      <time>October 25, 2021</time>&nbsp;·&nbsp;4 min&nbsp;·&nbsp;Saulius Alisauskas
+    </div>
+  </header>
+  <div class="post-content"><ul>
+<li><a href="#openssl-is-tricky">OpenSSL is tricky</a></li>
+<li><a href="#just-be-your-own-root-ca">Just be your own Root CA</a></li>
+<li><a href="#facts-and-tips">Facts and tips</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+<blockquote>
+<p>Software used:</p>
+<ul>
+<li>OpenSSL 1.1.1j  16 Feb 2021</li>
+</ul>
+</blockquote>
+<h1 id="openssl-is-tricky">OpenSSL is tricky</h1>
+<p><a href="https://www.openssl.org/">openssl</a> command line utility is the most common way to generate keys and certificates required to setup TLS connections to web servers. It is, however, often very tricky to use. Numerous examples posted are confusing or missing some key peace of information (examples provided here are no exception) leading to frustrations. Even the name it self &lsquo;openssl&rsquo; contains &lsquo;ssl&rsquo; which is an old name of &lsquo;tls&rsquo;&hellip;
+More over, even once I figure it out, the next time, it will all be forgotten (happened multiple times). So, here i will attempt to lay things out for my self (and anyone lease reading it) for future reference so that hopefully, i will not need to go and scout the web for same things over again.</p>
+<h1 id="just-be-your-own-root-ca">Just be your own Root CA</h1>
+<p>Most of the time it is best to use TLS from the start for any services that are going to be deployed to production eventually. That is because TLS or its absense has implication on service functionality (like handling of http header <code>set-cookie x=y secure</code>).
+After going through different options, I settled on creating my own root CA, importing it to all of my devices and signing all my other certificates with it. Although this is a little bit more cumbersome initially compared to just using a self-signed certificate, but it is way more easier to manage it down the road (especially if you are going to be creating different certificates).
+I even use this method for my own personal services to avoid paying for real certificate while still reaping the benefits of secure communication (as long as i do a good job of not exposing my root CA&rsquo;s private key)</p>
+<p>So here is how i do it. Create a config file for root CA and call it root_ca.cnf:</p>
+<pre><code>[req]
+default_bits = 2048
+encrypt_key  = no
+default_md   = sha256
+prompt       = no
+utf8         = yes
+distinguished_name = req_distinguished_name
+x509_extensions = v3_ext
+
+[req_distinguished_name]
+C  = US
+ST = NJ
+L  = Metuchen
+O  = MyPersonalRootCA
+OU = MyPersonalRootCA
+CN = example.com
+
+[v3_ext]
+basicConstraints     = critical, CA:true
+subjectKeyIdentifier = hash
+keyUsage             = critical, digitalSignature, cRLSign, keyCertSign
+extendedKeyUsage     = clientAuth, serverAuth
+</code></pre><blockquote>
+<p>Key things in here are:</p>
+<ul>
+<li><code>basicConstraints = CA:true</code> marks it are CA</li>
+<li><code>keyUsage = keyCertSign</code> allows to use generate certificate for signing other certificates</li>
+</ul>
+</blockquote>
+<p>You will most likely only need to edit <code>req_distinguished_name</code> section only. Now we can generate our root certificate authority.</p>
+<pre><code>openssl req -new -x509 -sha256 -nodes -newkey rsa:2048 -keyout root_ca.key -out root_ca.pem -days 3650 -config root_ca.cnf
+</code></pre><p>Generate private key for service certificate:</p>
+<pre><code>openssl genrsa -out server.key 2048
+</code></pre><p>Create config file for CSR generation:</p>
+<pre><code>[req]
+distinguished_name = req_distinguished_name
+prompt = no
+
+[req_distinguished_name]
+C  = US
+ST = NJ
+L  = Metuchen
+O  = MyService
+OU = MyService1
+CN = myservice.example.com
+</code></pre><blockquote>
+<p>Distinguished name provided here will be &ldquo;subject&rdquo; and the one provided for root ca will be &ldquo;issuer&rdquo; when viewing certificate chaing information.</p>
+</blockquote>
+<p>To generate CSR:</p>
+<pre><code>openssl req -new -key server.key -out server.csr -config server.cnf
+</code></pre><p>We need to create extension file where we will be able to specify DNS names and IP addresses that will be valid for this certificate server.v3.ext:</p>
+<pre><code>authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = localhost
+DNS.2 = myservice.example.com
+</code></pre><p>Finally now we can generate certificate for our app signed with our root CA:</p>
+<pre><code>openssl x509 -req -in server.csr -CA root_ca.pem -CAkey root_ca.key -CAcreateserial \
+-out server.crt -days 3650 -sha256 -extfile server.v3.ext
+</code></pre><blockquote>
+<p>It is a little odd that we cannot set <code>subjectAltName</code> in CSR it self, but this is how it works. Although it is possible to make it copy extensions from CSR but that requires special configuration in root_ca.cnf and is considered and ant-pattern.</p>
+</blockquote>
+<p>Now lets test it out, here is a minimal golang code to start up a web service secured with our generate certificate:</p>
+<pre><code>go mod init example/server
+</code></pre><p>Create file main.go:</p>
+<pre><code>package main
+
+import (
+	&quot;net/http&quot;
+)
+
+func main() {
+	http.HandleFunc(&quot;/&quot;, func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(&quot;hello&quot;))
+	})
+	http.ListenAndServeTLS(&quot;127.0.0.1:8080&quot;, &quot;server.crt&quot;, &quot;server.key&quot;, nil)
+}
+
+</code></pre><p>Register root CA in your system. For linux:</p>
+<pre><code>sudo cp root_ca.pem /usr/local/share/ca-certificates/myroot.crt
+sudo update-ca-certificates
+</code></pre><p>and run it:</p>
+<pre><code>go run main.go
+</code></pre><p>You should see it return &lsquo;hello&rsquo; and no tls errors.</p>
+<h1 id="tls-for-your-private-production-services">TLS for your private production services</h1>
+<p>Sometimes, you might have some private web services (like i do) which are accessed only by you. In this case, you are most likely not making money on it and don&rsquo;t want to pay for certificates but you still want to secure communication and have access from all your devices. One way to set this up is to create your own Root CA and sign with it certificates of individual services, then import that Root CA on all your devices.</p>
+<h1 id="facts-and-tips">Facts and tips</h1>
+<p>Some security related restrictions are relaxed by web services is accessed via <code>localhost</code> host:</p>
+<ul>
+<li>Set-Cookie header is still when <code>secure</code> attribute is present and request scheme is not <code>https</code>.</li>
+</ul>
+<h1 id="troubleshooting">Troubleshooting</h1>
+<ul>
+<li><code>openssl s_client -showcerts -connect yourservicehost:443</code></li>
+<li><code>openssl req -in server.csr -noout -text</code></li>
+</ul>
+<h1 id="references">References</h1>
+<p><a href="https://jamielinux.com/docs/openssl-certificate-authority/index.html">https://jamielinux.com/docs/openssl-certificate-authority/index.html</a>
+<a href="https://gist.github.com/fntlnz/cf14feb5a46b2eda428e000157447309">https://gist.github.com/fntlnz/cf14feb5a46b2eda428e000157447309</a></p>
+</div>
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://noiseoverip.github.io/tags/tls">tls</a></li>
+      <li><a href="https://noiseoverip.github.io/tags/web">web</a></li>
+    </ul>
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://noiseoverip.github.io">Saul&#39;s Blog</a></span>
+    <span>&middot;</span>
+    <span>Powered by <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo️️</a>️</span>
+    <span>&middot;</span>
+    <span>Theme️ <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top">
+    <button class="top-link" id="top-link" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6">
+            <path d="M12 6H0l6-6z" /></svg>
+    </button>
+</a>
+<script src="https://noiseoverip.github.io/assets/js/highlight.min.e7afc2928c0925d65c4732dfebe147014d91299a98e819e4b42f25c4fa68e91c.js" integrity="sha256-56/CkowJJdZcRzLf6&#43;FHAU2RKZqY6BnktC8lxPpo6Rw="></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            document.querySelector(this.getAttribute("href")).scrollIntoView({
+                behavior: "smooth"
+            });
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+</script>
+</body>
+
+</html>
